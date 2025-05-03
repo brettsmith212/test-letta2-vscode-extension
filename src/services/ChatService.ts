@@ -1,17 +1,30 @@
 import * as vscode from 'vscode';
-// Anthropic SDK dependency has been removed in Step 7-1
 import { Message, ContentBlock } from '../types';
 import { LettaService } from './LettaService';
 
-// Custom type definition for tool compatibility
+/**
+ * ChatService - Service for managing chat interactions in the VS Code extension
+ * 
+ * This service acts as an adapter between the UI layer and the LettaService,
+ * maintaining backward compatibility with the previous implementation while
+ * delegating actual AI communication to the LettaService.
+ * 
+ * The service handles:
+ * - Tracking message history
+ * - Error handling and recovery
+ * - Formatting messages for display
+ * - Streaming message support
+ * 
+ * @module ChatService
+ * @version 1.0.0
+ */
+
+// Type definition for tool compatibility
 interface LettaTool {
   name: string;
   description: string;
   schema: any;
 }
-// Tools imports removed as part of migration to Letta
-
-// ToolCall interface removed as part of migration to Letta
 
 export class ChatService {
   private _messages: Message[] = [];

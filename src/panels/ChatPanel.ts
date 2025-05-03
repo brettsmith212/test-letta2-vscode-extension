@@ -1,3 +1,14 @@
+/**
+ * ChatPanel - The main UI component for the Letta Chat VS Code extension
+ * 
+ * This class manages the WebView panel that displays the chat interface and handles
+ * the interaction between the VS Code extension and the React-based UI. It acts as
+ * the controller connecting the ChatService with the UI layer.
+ * 
+ * @module ChatPanel
+ * @version 1.0.0
+ */
+
 import * as vscode from 'vscode';
 import { ChatService } from '../services/ChatService';
 import { getWebviewContent } from '../views/webview-content';

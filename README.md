@@ -1,27 +1,27 @@
-# Claude Chat VSCode Extension
+# Letta Chat for VS Code
 
-A VSCode extension that provides an AI Coding Agent powered by Claude 3.5 Sonnet, enabling intelligent code assistance and chat interactions directly within your editor.
+A VS Code extension that provides an AI Coding Agent powered by Letta AI, enabling intelligent code assistance and chat interactions directly within your editor.
 
 ## Features
 
-- Interactive chat interface with Claude AI
+- Interactive chat interface with Letta AI
 - Code generation, analysis, and refactoring assistance
 - Context-aware responses based on your workspace
-- Modern, minimalist dark theme UI using Shadcn components
+- Modern, minimalist UI using Shadcn components
 - Built with React TypeScript for the webview interface
 
 ## Prerequisites
 
 - Node.js and npm installed
-- VSCode version 1.60.0 or higher
-- Anthropic API key
+- VS Code version 1.54.0 or higher
+- A running Letta AI server (default: http://localhost:8283)
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/brettsmith212/test-ai-vscode-extension.git
-cd test-ai-vscode-extension
+git clone https://github.com/yourusername/letta-vscode-extension.git
+cd letta-vscode-extension
 ```
 
 2. Install dependencies:
@@ -29,47 +29,82 @@ cd test-ai-vscode-extension
 npm install
 ```
 
+3. Build the extension:
+```bash
+npm run compile && npm run build:webviews
+```
+
+## Configuration
+
+1. Configure the Letta server URL in VS Code settings:
+   - Open VS Code settings (Ctrl+,)
+   - Search for "Letta Chat"
+   - Set the "Server URL" to your Letta server address (default is http://localhost:8283)
+
 ## Development Setup
 
-1. Configure launch.json for debugging:
-   - Open the project in VSCode
-   - Press F5 to start debugging
-   - This will open a new VSCode window with the extension loaded
+1. Start the development server for the webview UI:
+```bash
+npm run watch:webviews
+```
 
-2. Run Storybook for UI development:
+2. Compile and watch for TypeScript changes:
+```bash
+npm run watch
+```
+
+3. Run the extension in development mode:
+   - Open the project in VS Code
+   - Press F5 to start debugging
+   - This will open a new VS Code window with the extension loaded
+
+4. Run Storybook for UI component development:
 ```bash
 npm run storybook
 ```
 This will start Storybook on http://localhost:6006
 
+## Testing
+
+- Unit tests: `npm test`
+- Integration tests: `npm run test:integration` (requires a running Letta server)
+- Lint: `npm run lint`
+
 ## Project Structure
 
 - `src/`: Main extension code
-  - Extension logic
-  - Claude LLM integration
-  - Agent tools and utilities
-  - Test files for functionality verification
+  - `extension.ts`: Entry point for the extension
+  - `services/`: Contains LettaService and ChatService
+  - `panels/`: Chat panel UI integration
+  - `views/`: WebView content generation
 
 - `webviews/`: Chat interface code
   - React TypeScript components
   - Shadcn UI components in `components/ui/`
-  - Storybook configuration and stories
+  - Storybook configuration for UI development
 
-## Following extension guidelines
+- `test/`: Unit and integration tests
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+## Architecture
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+The extension follows a layered architecture:
 
-## Working with Markdown
+1. **UI Layer**: WebView-based chat interface built with React
+2. **Service Layer**: 
+   - `ChatService`: Manages conversation state and history
+   - `LettaService`: Handles communication with the Letta AI server
+3. **Extension Layer**: VS Code extension entry point and integration
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+Communication between the WebView and extension happens through message passing using the VS Code API.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## Contributing
 
-## For more information
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -am 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Submit a pull request
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

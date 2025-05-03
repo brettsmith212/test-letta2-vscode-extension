@@ -188,7 +188,7 @@
     2. `npm run test:integration` (may take ~1 min).
 
 ## 9 – Documentation
-- [ ] **Step 9‑1: Update README & Source Comments**
+- [x] **Step 9‑1: Update README & Source Comments**
   - **Task**: Rewrite README with setup, dev & test instructions, remove Claude notes.
   - **Description**: Completes migration deliverables.
   - **Files**:

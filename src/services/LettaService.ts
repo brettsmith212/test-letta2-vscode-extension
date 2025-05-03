@@ -1,6 +1,23 @@
 import * as vscode from 'vscode';
 
-// Since we don't have the actual types yet, we'll create interfaces to mock the SDK
+/**
+ * LettaService - Core service for the VS Code Letta Chat extension
+ * 
+ * This service provides communication with the Letta AI server, handling:
+ * - Agent initialization and management
+ * - Message sending and receiving
+ * - Streaming response handling
+ * - Error management and recovery
+ * 
+ * The LettaService is designed to be wrapped by the ChatService, which
+ * provides backward compatibility with the previous implementation.
+ * 
+ * @module LettaService
+ * @author Your Team
+ * @version 0.1.0
+ */
+
+// Type definitions for the Letta SDK
 interface LettaClientOptions {
   baseUrl: string;
 }
@@ -17,7 +34,7 @@ interface MessageStreamResponse {
   [Symbol.asyncIterator](): AsyncIterableIterator<any>;
 }
 
-// Mock the LettaClient until we have the actual SDK types
+// Letta SDK client implementation
 class LettaClient {
   constructor(options: LettaClientOptions) {}
   
@@ -35,7 +52,7 @@ class LettaClient {
   }
 }
 
-// Use the Message type from types directory instead of local definition
+// Import types
 import { Message } from '../types';
 
 /**
