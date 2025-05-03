@@ -115,7 +115,7 @@
   - **User Instructions**: `npm test` – all unit tests (ChatService + LettaService + activation) pass.
 
 ## 4 – ChatPanel Simplification
-- [ ] **Step 4‑1: Remove Tool‑Related Code (Compile Pass)**
+- [x] **Step 4‑1: Remove Tool‑Related Code (Compile Pass)**
   - **Task**: Delete `_pendingCommands`, tool loops, and references to `fileTools`/`terminalTools`.
   - **Description**: Minimizes diff while still compiling; UI still echoes.
   - **Files**:
