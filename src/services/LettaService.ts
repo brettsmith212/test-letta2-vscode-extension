@@ -1,246 +1,185 @@
 import * as vscode from 'vscode';
+import { LettaClient } from '@letta-ai/letta-client';
 
-/**
- * LettaService - Core service for the VS Code Letta Chat extension
- * 
- * This service provides communication with the Letta AI server, handling:
- * - Agent initialization and management
- * - Message sending and receiving
- * - Streaming response handling
- * - Error management and recovery
- * 
- * The LettaService is designed to be wrapped by the ChatService, which
- * provides backward compatibility with the previous implementation.
- * 
- * @module LettaService
- * @author Your Team
- * @version 0.1.0
- */
-
-// Type definitions for the Letta SDK
-interface LettaClientOptions {
-  baseUrl: string;
-}
-
-interface CreateAgentResponse {
-  agentId: string;
-}
-
-interface SendMessageResponse {
-  response: string;
-}
-
-interface MessageStreamResponse {
-  [Symbol.asyncIterator](): AsyncIterableIterator<any>;
-}
-
-// Letta SDK client implementation
-class LettaClient {
-  constructor(options: LettaClientOptions) {}
-  
-  createAgent(params: any): Promise<CreateAgentResponse> {
-    return Promise.resolve({ agentId: 'mock-id' });
-  }
-  
-  sendMessage(params: any): Promise<SendMessageResponse> {
-    return Promise.resolve({ response: 'mock-response' });
-  }
-  
-  sendMessageStream(params: any): Promise<MessageStreamResponse> {
-    // Implemented in tests
-    return Promise.resolve({ [Symbol.asyncIterator]: async function* () {} });
-  }
-}
-
-// Import types
 import { Message } from '../types';
 
 /**
- * Service for communicating with Letta AI
+ * LettaService – Communicates with a running Letta server via the official
+ * TypeScript SDK.  Wrapped by ChatService and provides:
+ *   • Agent creation / reuse
+ *   • Message sending (complete & streaming)
+ *   • Abort‑controller support to cancel streams
  */
 export class LettaService {
-  private _messages: Message[] = [];
-  private _client: LettaClient | null = null;
-  private _agentId: string | null = null;
-  private _abortController: AbortController | null = null;
+	// Conversation history (used mainly for convenience / UI)
+	private _messages: Message[] = [];
 
-  constructor() {
-    this.initializeClient();
-  }
+	// Letta SDK client & active agent
+	private _client: LettaClient | null = null;
+	private _agentId: string | null = null;
 
-  /**
-   * Initialize the Letta client based on configuration
-   */
-  private initializeClient() {
-    const serverUrl = this.getServerUrl();
-    if (serverUrl) {
-      try {
-        this._client = new LettaClient({
-          baseUrl: serverUrl
-        });
-        console.log('LettaClient initialized with URL:', serverUrl);
-      } catch (error) {
-        console.error('Failed to initialize LettaClient:', error);
-        this._client = null;
-      }
-    } else {
-      console.error('No server URL configured');
-    }
-  }
+	// For cancelling a streaming request
+	private _abortController: AbortController | null = null;
 
-  /**
-   * Get the configured server URL from settings
-   * @returns The server URL or default if not configured
-   */
-  private getServerUrl(): string {
-    // Read from environment variable first (for testing/development)
-    // Then from VS Code settings, then fall back to default
-    return process.env.LETTA_SERVER_URL || 
-           vscode.workspace.getConfiguration('lettaChat').get<string>('serverUrl') ||
-           'http://localhost:8283';
-  }
-  
-  // For testing purposes
-  public static createForTesting(client: any, agentId: string = 'mock-agent-id'): LettaService {
-    const service = new LettaService();
-    service._client = client;
-    service._agentId = agentId;
-    return service;
-  }
+	constructor() {
+		this._initializeClient();
+	}
 
-  /**
-   * Initializes a Letta agent
-   * @returns A promise that resolves when the agent is initialized
-   */
-  public async initAgent(): Promise<void> {
-    if (!this._client) {
-      throw new Error('Letta client not initialized');
-    }
+	/* ------------------------------------------------------------------ *
+	 *  Public API                                                        *
+	 * ------------------------------------------------------------------ */
 
-    try {
-      // Create a new agent using the SDK
-      const response = await this._client.createAgent({
-        // Agent configuration would go here
-        // For now, use default settings
-        name: 'VSCodeAgent'
-      });
-      
-      this._agentId = response.agentId;
-      console.log('Agent initialized with ID:', this._agentId);
-    } catch (error) {
-      console.error('Failed to initialize agent:', error);
-      throw new Error(`Failed to initialize Letta agent: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+	/**
+	 * Sends a single message and returns the assistant’s full reply
+	 */
+	public async sendMessage(text: string): Promise<string> {
+		if (!this._client) {
+			throw new Error('Letta client not initialised');
+		}
 
-  /**
-   * Sends a message to Letta AI and returns the response
-   * @param message The message text to send
-   * @returns A promise that resolves to the assistant's response
-   */
-  public async sendMessage(message: string): Promise<string> {
-    if (!this._client) {
-      throw new Error('Letta client not initialized');
-    }
+		// Ensure we have / reuse an agent
+		await this._ensureAgent();
 
-    if (!this._agentId) {
-      await this.initAgent();
-    }
+		// Record user message locally
+		this._messages.push({ role: 'user', content: text });
 
-    // Add the user message to the history
-    const userMessage: Message = {
-      role: 'user',
-      content: typeof message === 'string' ? message : JSON.stringify(message)
-    };
-    this._messages.push(userMessage);
+		try {
+			const result: any = await this._client.agents.messages.create(this._agentId!, {
+				messages: [{ role: 'user', content: text }]
+			});
 
-    try {
-      // Send the message to the Letta API
-      const response = await this._client.sendMessage({
-        agentId: this._agentId!,
-        message: message
-      });
+			// The assistant reply is always the last assistant‑role message
+			const assistant = result.messages.find((m: any) => m.role === 'assistant');
+			const reply = assistant?.content ?? '(No response)';
 
-      // Extract and store the assistant's response
-      const assistantResponse = response.response || 'No response from Letta';
-      
-      // Add the assistant message to the history
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: assistantResponse // As string, which is compatible with the Message type
-      };
-      this._messages.push(assistantMessage);
+			// Store & return
+			this._messages.push({ role: 'assistant', content: reply });
+			return reply;
+		} catch (err) {
+			console.error('LettaService.sendMessage – SDK error:', err);
+			throw new Error(
+				`Failed to send message to Letta: ${err instanceof Error ? err.message : String(err)}`
+			);
+		}
+	}
 
-      return assistantResponse;
-    } catch (error) {
-      console.error('Error sending message to Letta:', error);
-      throw new Error(`Failed to send message: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+	/**
+	 * Opens a streaming response for the most‑recent user message
+	 */
+	public async createMessageStream(messages: Message[]) {
+		if (!this._client) {
+			throw new Error('Letta client not initialised');
+		}
 
-  /**
-   * Get all messages in the conversation history
-   * @returns Array of messages
-   */
-  public getMessages(): Message[] {
-    return [...this._messages];
-  }
+		await this._ensureAgent();
 
-  /**
-   * Create a streaming message response
-   * @param messages The messages to include in the request
-   * @returns A stream of response chunks
-   */
-  public async createMessageStream(messages: Message[]): Promise<any> {
-    if (!this._client) {
-      throw new Error('Letta client not initialized');
-    }
+		// Find the last user message
+		const lastUser = [...messages].reverse().find(m => m.role === 'user');
+		if (!lastUser) throw new Error('No user message provided for streaming');
 
-    if (!this._agentId) {
-      await this.initAgent();
-    }
+		this._abortController = new AbortController();
 
-    this._abortController = new AbortController();
+		try {
+			// The SDK currently supports streaming via create({ stream: true })
+			const stream: AsyncIterable<any> = await (this._client as any).agents.messages.create(
+				this._agentId!,
+				{
+					messages: [{ role: 'user', content: String(lastUser.content) }],
+					stream: true, // flag to request SSE/streaming
+					signal: this._abortController.signal
+				}
+			);
 
-    try {
-      // Get the last user message
-      // Find the last user message (without using findLast which requires ES2023)
-      let lastUserMessage: Message | undefined;
-      for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].role === 'user') {
-          lastUserMessage = messages[i];
-          break;
-        }
-      }
-      
-      if (!lastUserMessage) {
-        throw new Error('No user message found');
-      }
+			return stream;
+		} catch (err) {
+			console.error('LettaService.createMessageStream – SDK error:', err);
+			throw new Error(
+				`Failed to create message stream: ${err instanceof Error ? err.message : String(err)}`
+			);
+		}
+	}
 
-      // Start streaming response
-      const stream = await this._client.sendMessageStream({
-        agentId: this._agentId!,
-        message: lastUserMessage.content,
-        signal: this._abortController.signal
-      });
+	/**
+	 * Abort an in‑progress stream (if any)
+	 */
+	public cancelCurrentStream(): boolean {
+		if (this._abortController) {
+			this._abortController.abort();
+			this._abortController = null;
+			return true;
+		}
+		return false;
+	}
 
-      return stream;
-    } catch (error) {
-      console.error('Error creating message stream:', error);
-      throw new Error(`Failed to create message stream: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+	/** Expose a copy of conversation history */
+	public getMessages(): Message[] {
+		return [...this._messages];
+	}
 
-  /**
-   * Cancel the current message stream
-   * @returns true if a stream was cancelled, false otherwise
-   */
-  public cancelCurrentStream(): boolean {
-    if (this._abortController) {
-      this._abortController.abort();
-      this._abortController = null;
-      return true;
-    }
-    return false;
-  }
+	/* ------------------------------------------------------------------ *
+	 *  Internal helpers                                                  *
+	 * ------------------------------------------------------------------ */
+
+	private _initializeClient() {
+		const baseUrl = this._getServerUrl();
+
+		try {
+			// Client options currently support only { baseUrl }
+			this._client = new LettaClient({ baseUrl });
+			console.log('[LettaService] Client initialised:', baseUrl);
+		} catch (err) {
+			console.error('Failed to initialise LettaClient:', err);
+			this._client = null;
+		}
+	}
+
+	/**
+	 * Create a new agent once per extension session
+	 */
+	private async _ensureAgent() {
+		if (!this._client) throw new Error('Letta client not initialised');
+		if (this._agentId) return;
+
+		const agent: any = await this._client.agents.create({
+			name: 'vscode-chat-agent',
+			model: 'openai/gpt-4o-mini', // adjust to available model on your server
+			embedding: 'openai/text-embedding-ada-002',
+			memoryBlocks: [
+				{
+					label: 'persona',
+					value:
+						'You are a helpful programming assistant living inside Visual Studio Code.'
+				}
+			]
+		});
+
+		this._agentId = agent.id;
+		console.log('[LettaService] Agent created:', this._agentId);
+	}
+
+	/* ------------------------------------------------------------------ *
+	 *  Config utilities                                                  *
+	 * ------------------------------------------------------------------ */
+
+	private _getServerUrl(): string {
+		// Order of precedence: env var → user setting → default
+		return (
+			process.env.LETTA_SERVER_URL ||
+			vscode.workspace.getConfiguration('lettaChat').get<string>('serverUrl') ||
+			'http://localhost:8283'
+		);
+	}
+
+	/* ------------------------------------------------------------------ *
+	 *  Static helper for unit tests                                      *
+	 * ------------------------------------------------------------------ */
+	public static createForTesting(
+		mockClient: any,
+		mockAgentId = 'agent-test-id'
+	): LettaService {
+		const svc = new LettaService();
+		svc._client = mockClient;
+		svc._agentId = mockAgentId;
+		return svc;
+	}
 }
