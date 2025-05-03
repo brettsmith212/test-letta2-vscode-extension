@@ -53,7 +53,7 @@
   - **Step Dependencies**: Baseline tests pass.
   - **User Instructions**: `npm install` & run compile (`npm run compile`) – should still succeed.
 
-- [ ] **Step 1‑2: Rename Commands & Manifest**
+- [x] **Step 1‑2: Rename Commands & Manifest**
   - **Task**: Change command IDs, extension name, and display strings.
   - **Description**: Minimal manifest update, but does **not** yet delete Anthropic.
   - **Files**:

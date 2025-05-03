@@ -1,6 +1,6 @@
 {
-  "name": "test-extension",
-  "displayName": "Claude Chat",
+  "name": "letta-chat",
+  "displayName": "Letta Chat",
   "description": "A VS Code extension for chatting with Claude-3.5",
   "version": "0.0.1",
   "engines": {
@@ -9,13 +9,15 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:letta-chat.openChat"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "claude-chat.openChat",
-        "title": "Open Claude Chat"
+        "command": "letta-chat.openChat",
+        "title": "Open Letta Chat"
       }
     ],
     "configuration": {
