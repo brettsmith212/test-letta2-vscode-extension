@@ -45,7 +45,7 @@
   - **User Instructions**: Run `npm test` – tests should pass.
 
 ## 1 – Rename & Dependency Swap (Incremental)
-- [ ] **Step 1‑1: Introduce Letta SDK Without Removal**
+- [x] **Step 1‑1: Introduce Letta SDK Without Removal**
   - **Task**: Add `@letta-ai/letta-client` to dependencies while keeping Anthropic for compile continuity.
   - **Description**: Allows code to import new SDK before CLI swap.
   - **Files**:
