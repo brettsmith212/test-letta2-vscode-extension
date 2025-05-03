@@ -20,7 +20,7 @@ export const commands = {
     return Promise.resolve();
   },
   getCommands: (filterInternal?: boolean) => {
-    return Promise.resolve(['claude-chat.openChat']);
+  return Promise.resolve(['letta-chat.openChat']);
   }
 };
 

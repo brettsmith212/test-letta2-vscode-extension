@@ -2,46 +2,59 @@
 
 ## Overview
 
-Integration testing for VS Code extensions is complex because it requires:
+Integration testing for VS Code extensions can be approached in multiple ways:
 
-1. Launching a real VS Code instance
-2. Installing the extension under test
-3. Automating UI interactions
-4. Detecting success/failure conditions
+1. **Full VS Code Integration**: Launching a real VS Code instance (complex, requires GUI)
+2. **Semi-Integration**: Testing core services interact correctly without VS Code UI
+3. **Service Integration**: Verifying external services are accessible (like Letta server)
 
-## Implementation Plan
+## Our Implementation
 
-A full implementation would use the @vscode/test-electron package to:
+We've implemented a hybrid approach that:
 
+1. Tests that core services (ChatService, LettaService) can be instantiated and interact
+2. Verifies the Letta server is accessible with a simple HTTP request
+3. Has additional mocks and tests for the VS Code APIs
+
+This approach offers several advantages:
+- Works in CI environments without GUI
+- Doesn't require VS Code download
+- Fast execution
+- Verifies critical integration points
+
+## Full VS Code Integration (Alternative)
+
+A more comprehensive approach would use @vscode/test-electron to:
 1. Download and launch VS Code
 2. Load the extension
-3. Run a test script that executes commands like `letta-chat.openChat`
-4. Verify the WebView panel opens correctly
-5. Send a test message to the Letta AI server
-6. Verify a response is received
+3. Run tests inside VS Code
+4. Interact with the WebView
+
+However, this approach has challenges:
+- Requires a GUI environment (headless mode is problematic)
+- Difficult to debug
+- Sensitive to VS Code version changes
+- Slow test execution
 
 ## Environment Requirements
 
-- A running Letta AI server at http://localhost:8283
-- GUI environment for VS Code to run in
-- Network access to download VS Code if not cached
+- A running Letta AI server at http://localhost:8283 (or set via LETTA_SERVER_URL)
+- Node.js environment
 
-## Execution
-
-A real implementation would run with:
+## Running Integration Tests
 
 ```bash
 npm run test:integration
 ```
 
-And would use the following configuration in package.json:
+The test:
+1. Verifies core services can be instantiated
+2. Checks service methods exist
+3. Confirms Letta server is accessible
 
-```json
-"test:integration": "LETTA_SERVER_URL=http://localhost:8283 vitest run -c vitest.config.ts --run test/integration.test.ts"
-```
+## Future Improvements
 
-## Next Steps
-
-1. Build a CI pipeline that supports GUI testing
-2. Create robust mocks for VS Code APIs
-3. Set up reliable test environments with Letta AI server
+1. Add WebView interaction testing using browser testing tools
+2. Create mock Letta server for reliable testing
+3. Increase test coverage for error conditions and edge cases
+4. Add visual regression testing for UI components

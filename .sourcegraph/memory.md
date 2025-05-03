@@ -60,12 +60,15 @@ The migration followed the plan in implementation.md, and all steps have been su
 ## Testing Strategy
 - Unit tests with Vitest for service and functionality verification
 - Tests use mocks to isolate components and avoid external dependencies
-- For VS Code components like ChatPanel, we use placeholder tests with detailed documentation due to the complexity of testing VS Code WebViews
-- Integration tests are documented but implemented as placeholders due to the complexity of testing VS Code extensions in headless environments
-- For VS Code components, tests focus on verifying the messaging contract between components rather than UI rendering
+- For VS Code components like ChatPanel, we use simplified tests with mocks to verify messaging contracts
+- Integration tests use a hybrid approach that:
+  - Tests core services can be instantiated and interact correctly
+  - Verifies the Letta server is accessible with HTTP requests
+  - Avoids the complexity of launching full VS Code instances in CI environments
+- Our approach balances thoroughness with practicality for CI/CD pipelines
 
 ## Learned Lessons
-- **VS Code Extension Testing**: Testing VS Code extensions, especially UI components like WebViews, requires specialized approaches. The VS Code API is difficult to mock in standard test environments, and the best approach is to use @vscode/test-electron or @vscode/test-cli for integration testing.
+- **VS Code Extension Testing**: Testing VS Code extensions, especially UI components like WebViews, requires specialized approaches. The VS Code API is difficult to mock in standard test environments, and while tools like @vscode/test-electron exist, they have significant limitations in headless environments.
 
 - **Staged Migration**: The incremental, test-driven approach works well for migration projects, allowing us to verify each change independently.
 
@@ -75,6 +78,6 @@ The migration followed the plan in implementation.md, and all steps have been su
 
 - **Type Compatibility**: When migrating between services with similar but non-identical types (like Message interfaces), we need to ensure type compatibility or provide conversion functions.
 
-- **Documentation First Integration Tests**: For complex test environments like VS Code extensions, sometimes a "documentation first" approach makes more sense than fighting with the testing infrastructure. We created placeholder integration tests with detailed documentation explaining how real tests would work, which provides guidance for future developers without blocking the migration process.
+- **Hybrid Integration Testing**: For complex test environments like VS Code extensions, a hybrid approach to integration testing is more practical than a full end-to-end approach. By testing that core services can communicate and verifying external service accessibility, we gain confidence in the system without the complexity of launching VS Code instances in CI environments.
 
 - **Comprehensive Headers**: Adding detailed header comments to key service files significantly improves code maintenance. The headers should explain not just what the component does, but its role in the overall architecture and relationships with other components.

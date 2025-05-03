@@ -1,8 +1,60 @@
-// Global setup for VS Code extension tests
+/**
+ * Setup file for Vitest tests
+ * 
+ * This file is run before tests to set up the testing environment,
+ * particularly for VS Code-related mocks.
+ */
+
 import { vi } from 'vitest';
 
-// This file is used for any global setup needed before running tests
-// For example, any additional module mocking or global variables
-
-// We don't need to do anything special here for now,
-// but we'll keep this file for future test enhancements
+// Only set up VS Code mocks if we're not in integration test mode
+if (!process.env.INTEGRATION_TEST) {
+  // Mock vscode module for unit tests
+  vi.mock('vscode', () => {
+    return {
+      window: {
+        createWebviewPanel: vi.fn().mockReturnValue({
+          webview: {
+            html: '',
+            onDidReceiveMessage: vi.fn(),
+            postMessage: vi.fn().mockResolvedValue(true),
+          },
+          reveal: vi.fn(),
+          onDidDispose: vi.fn(),
+          onDidChangeViewState: vi.fn(),
+        }),
+        showErrorMessage: vi.fn(),
+        showInformationMessage: vi.fn(),
+      },
+      Uri: {
+        file: (path: string) => ({ path }),
+        parse: (uri: string) => ({ uri }),
+        joinPath: (uri: any, ...pathSegments: string[]) => ({ 
+          path: [uri.path || '', ...pathSegments].join('/') 
+        }),
+      },
+      commands: {
+        registerCommand: vi.fn(),
+        executeCommand: vi.fn(),
+        getCommands: vi.fn().mockResolvedValue(['letta-chat.openChat']),
+      },
+      workspace: {
+        getConfiguration: vi.fn().mockImplementation(() => ({
+          get: vi.fn().mockImplementation((key) => {
+            if (key === 'serverUrl') return 'http://localhost:8283';
+            return undefined;
+          }),
+        })),
+      },
+      ExtensionContext: vi.fn(),
+      Position: vi.fn(),
+      Range: vi.fn(),
+      ViewColumn: { One: 1, Two: 2 },
+      Disposable: {
+        from: (...disposables: any[]) => ({
+          dispose: vi.fn(),
+        }),
+      },
+    };
+  });
+}
