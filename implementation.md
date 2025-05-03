@@ -102,7 +102,7 @@
   - **Step Dependencies**: Step 2‑2
   - **User Instructions**: `npm run compile` – should compile using old logic (we keep unused variables temporarily).
 
-- [ ] **Step 3‑2: Replace Implementation with LettaService**
+- [x] **Step 3‑2: Replace Implementation with LettaService**
   - **Task**: Rewrite `ChatService` to wrap a singleton `LettaService`.
   - **Description**: Keeps public API used by ChatPanel.
   - **Files**:

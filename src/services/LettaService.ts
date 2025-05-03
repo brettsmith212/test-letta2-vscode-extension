@@ -35,10 +35,8 @@ class LettaClient {
   }
 }
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+// Use the Message type from types directory instead of local definition
+import { Message } from '../types';
 
 /**
  * Service for communicating with Letta AI
@@ -135,7 +133,7 @@ export class LettaService {
     // Add the user message to the history
     const userMessage: Message = {
       role: 'user',
-      content: message
+      content: typeof message === 'string' ? message : JSON.stringify(message)
     };
     this._messages.push(userMessage);
 
@@ -152,7 +150,7 @@ export class LettaService {
       // Add the assistant message to the history
       const assistantMessage: Message = {
         role: 'assistant',
-        content: assistantResponse
+        content: assistantResponse // As string, which is compatible with the Message type
       };
       this._messages.push(assistantMessage);
 
