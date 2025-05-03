@@ -38,6 +38,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src webviews",
     "test": "vitest run",
+    "test:integration": "LETTA_SERVER_URL=http://localhost:8283 vitest run -c vitest.config.ts --run test/integration.test.ts",
     "build:webviews": "vite build",
     "watch:webviews": "vite",
     "storybook": "storybook dev -p 6006",

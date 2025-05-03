@@ -176,7 +176,7 @@
     - `npm run compile` & `npm test`.
 
 ## 8 – Integration Smoke Test
-- [ ] **Step 8‑1: VSCode CLI Integration Test**
+- [x] **Step 8‑1: VSCode CLI Integration Test**
   - **Task**: Use `@vscode/test-cli` to launch an Extension Development Host and programmatically send a chat message to ensure runtime path works.
   - **Description**: End‑to‑end guard; can be slower so separate npm script.
   - **Files**:

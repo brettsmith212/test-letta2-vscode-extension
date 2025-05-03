@@ -6,7 +6,8 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     // VS Code extension tests require special mocking
-    setupFiles: ['./test/setup.ts']
+    setupFiles: ['./test/setup.ts'],
+    testTimeout: 120000 // 2 minutes timeout for integration tests
   },
   resolve: {
     alias: {
