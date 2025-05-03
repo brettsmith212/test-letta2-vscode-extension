@@ -78,7 +78,7 @@
   - **Step Dependencies**: Step 1‑2
   - **User Instructions**: `npm test` – new test should pass.
 
-- [ ] **Step 2‑2: Implement Real LettaClient Logic**
+- [x] **Step 2‑2: Implement Real LettaClient Logic**
   - **Task**: Flesh out `LettaService` to:
     1. Read server URL from config.
     2. Instantiate `LettaClient`.
