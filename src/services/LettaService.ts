@@ -73,11 +73,11 @@ export class LettaService {
 
   /**
    * Get the configured server URL from settings
-   * @returns The server URL or undefined if not configured
+   * @returns The server URL or default if not configured
    */
-  private getServerUrl(): string | undefined {
-    // We'll implement the real config in Step 6-1, for now use a default
-    // This will be overridden later when configuration is added
+  private getServerUrl(): string {
+    // Read from environment variable first (for testing/development)
+    // Then from VS Code settings, then fall back to default
     return process.env.LETTA_SERVER_URL || 
            vscode.workspace.getConfiguration('lettaChat').get<string>('serverUrl') ||
            'http://localhost:8283';

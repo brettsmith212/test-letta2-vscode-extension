@@ -21,12 +21,12 @@
       }
     ],
     "configuration": {
-      "title": "Claude Chat",
+      "title": "Letta Chat",
       "properties": {
-        "claudeChat.apiKey": {
+        "lettaChat.serverUrl": {
           "type": "string",
-          "default": "",
-          "description": "API key for Claude-3.5"
+          "default": "http://localhost:8283",
+          "description": "Base URL of the Letta server"
         }
       }
     }

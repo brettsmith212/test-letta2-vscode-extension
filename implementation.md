@@ -147,7 +147,7 @@
     - `npm test` – all tests green.
 
 ## 6 – Configuration Update
-- [ ] **Step 6‑1: Replace API Key Setting with Server URL**
+- [x] **Step 6‑1: Replace API Key Setting with Server URL**
   - **Task**: Modify manifest & LettaService to read new setting.
   - **Description**: Exposes flexibility without requiring env vars.
   - **Files**:
