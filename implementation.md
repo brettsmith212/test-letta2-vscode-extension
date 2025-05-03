@@ -18,7 +18,7 @@
     1. `npm install`
     2. Run `npm test` (should report “No tests found” but succeed).
 
-- [ ] **Step 0‑2: Baseline Extension Activation Test**
+- [x] **Step 0‑2: Baseline Extension Activation Test**
   - **Task**: Create first test to ensure the extension activates and registers its command (current IDs).
   - **Description**: Provides safety net before we rename anything.
   - **Files**:
