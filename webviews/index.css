@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: var(--vscode-editor-background);
+    --foreground: var(--vscode-editor-foreground);
+    --card: var(--vscode-editor-background);
+    --card-foreground: var(--vscode-editor-foreground);
+    --popover: var(--vscode-editor-background);
+    --popover-foreground: var(--vscode-editor-foreground);
+    --primary: var(--vscode-button-background);
+    --primary-foreground: var(--vscode-button-foreground);
+    --secondary: var(--vscode-button-secondaryBackground);
+    --secondary-foreground: var(--vscode-button-secondaryForeground);
+    --muted: var(--vscode-editorWidget-background);
+    --muted-foreground: var(--vscode-descriptionForeground);
+    --accent: var(--vscode-button-hoverBackground);
+    --accent-foreground: var(--vscode-button-foreground);
+    --destructive: var(--vscode-errorForeground);
+    --destructive-foreground: var(--vscode-editor-background);
+    --border: var(--vscode-panel-border);
+    --input: var(--vscode-input-background);
+    --ring: var(--vscode-focusBorder);
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: var(--vscode-editor-background);
+    --foreground: var(--vscode-editor-foreground);
+    --card: var(--vscode-editor-background);
+    --card-foreground: var(--vscode-editor-foreground);
+    --popover: var(--vscode-editor-background);
+    --popover-foreground: var(--vscode-editor-foreground);
+    --primary: var(--vscode-button-background);
+    --primary-foreground: var(--vscode-button-foreground);
+    --secondary: var(--vscode-button-secondaryBackground);
+    --secondary-foreground: var(--vscode-button-secondaryForeground);
+    --muted: var(--vscode-editorWidget-background);
+    --muted-foreground: var(--vscode-descriptionForeground);
+    --accent: var(--vscode-button-hoverBackground);
+    --accent-foreground: var(--vscode-button-foreground);
+    --destructive: var(--vscode-errorForeground);
+    --destructive-foreground: var(--vscode-editor-background);
+    --border: var(--vscode-panel-border);
+    --input: var(--vscode-input-background);
+    --ring: var(--vscode-focusBorder);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground min-h-screen min-w-full m-0 p-0;
+  }
+  #root {
+    @apply min-h-screen min-w-full;
+  }
+
+  /* Markdown styles */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-foreground mt-2 mb-1;
+  }
+  h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-xl;
+  }
+  h3 {
+    @apply text-lg;
+  }
+  pre {
+    @apply bg-[var(--vscode-textCodeBlock-background)] p-3 rounded-md my-2;
+  }
+  code {
+    @apply bg-[var(--vscode-textCodeBlock-background)] text-[var(--vscode-editor-foreground)] rounded px-1;
+  }
+  .code-block {
+    @apply relative bg-[var(--vscode-textCodeBlock-background)] p-3 rounded-md my-2 border border-[var(--vscode-panel-border)];
+  }
+  .code-block code {
+    @apply bg-transparent px-0 block w-full;
+  }
+  .copy-button-container {
+    @apply absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity;
+  }
+  p {
+    @apply my-1;
+  }
+}
+
+@layer utilities {
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+}
+
+/* Fix for chat container layout issues */
+.chat-message-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.chat-message {
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Fix markdown content */
+.chat-message * {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+/* Ensure code blocks don't expand beyond container */
+.chat-message pre,
+.chat-message code,
+.chat-message .code-block {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+/* Fix for ReactMarkdown */
+.chat-message p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-x: hidden;
+}
