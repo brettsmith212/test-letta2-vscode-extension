@@ -69,7 +69,7 @@
     3. `npm test` – should pass.
 
 ## 2 – Service Layer with Letta (Test‑First)
-- [ ] **Step 2‑1: Create Skeleton `LettaService`**
+- [x] **Step 2‑1: Create Skeleton `LettaService`**
   - **Task**: Implement class with constructor & stub methods returning placeholders.
   - **Description**: Establish interface contract to allow other code to import.
   - **Files**:
