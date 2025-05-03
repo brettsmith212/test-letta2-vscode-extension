@@ -46,11 +46,14 @@ The migration follows the plan in implementation.md, with the following steps co
 1. ✅ Setting up a testing framework with Vitest
 2. ✅ Renaming commands and manifest (now using letta-chat.openChat)
 3. ✅ Created a new LettaService with the required functionality
+4. ✅ Refactored ChatService to use LettaService
+5. ✅ Simplified ChatPanel and removed tool-related code
 
 Remaining steps include:
-4. Refactoring ChatService to use LettaService
-5. Simplifying ChatPanel and removing tool-related code
-6. Cleaning up dependencies and removing Anthropic SDK
+6. Removing the tools directory
+7. Updating configuration
+8. Cleaning up dependencies and removing Anthropic SDK
+9. Adding integration tests and updating documentation
 
 ## Configuration
 - The extension used to use Claude API key in VS Code settings under `claudeChat.apiKey`
@@ -60,4 +63,16 @@ Remaining steps include:
 ## Testing Strategy
 - Unit tests with Vitest for service and functionality verification
 - Tests use mocks to isolate components and avoid external dependencies
-- Integration tests will be added to verify end-to-end functionality
+- For VS Code components like ChatPanel, we use placeholder tests with detailed documentation due to the complexity of testing VS Code WebViews
+- Integration tests will be added to verify end-to-end functionality using @vscode/test-cli
+
+## Learned Lessons
+- **VS Code Extension Testing**: Testing VS Code extensions, especially UI components like WebViews, requires specialized approaches. The VS Code API is difficult to mock in standard test environments, and the best approach is to use @vscode/test-electron or @vscode/test-cli for integration testing.
+
+- **Staged Migration**: The incremental, test-driven approach works well for migration projects, allowing us to verify each change independently.
+
+- **Adapter Pattern**: We used an adapter pattern where ChatService wraps LettaService, allowing us to maintain the same API for the UI layer while changing the underlying implementation.
+
+- **Tool Removal**: Removing the tool-related code simplified ChatPanel significantly, making it solely responsible for UI interactions. The AI's tool handling is now managed by Letta AI itself, reducing the extension's complexity.
+
+- **Type Compatibility**: When migrating between services with similar but non-identical types (like Message interfaces), we need to ensure type compatibility or provide conversion functions.

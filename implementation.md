@@ -125,7 +125,7 @@
     1. `npm run compile` – should succeed.
     2. Run `npm test` (no unit tests for panel yet, but existing tests pass).
 
-- [ ] **Step 4‑2: Add ChatPanel Unit Test (Mock Webview)**
+- [x] **Step 4‑2: Add ChatPanel Unit Test (Mock Webview)**
   - **Task**: Use Vitest’s `vi.fn()` to mock VSCode Webview & ChatService, asserting message flow.
   - **Description**: Regression guard for further UI changes.
   - **Files**:
