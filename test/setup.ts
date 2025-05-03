@@ -46,6 +46,12 @@ if (!process.env.INTEGRATION_TEST) {
           }),
         })),
       },
+      extensions: {
+        getExtension: vi.fn().mockImplementation((id) => ({
+          activate: vi.fn().mockResolvedValue({}),
+          exports: {}
+        }))
+      },
       ExtensionContext: vi.fn(),
       Position: vi.fn(),
       Range: vi.fn(),
