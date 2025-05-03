@@ -8,7 +8,7 @@ describe('LettaService', () => {
     
     // Verify the service has the expected methods
     expect(typeof service.sendMessage).toBe('function');
-    expect(typeof service.initAgent).toBe('function');
+    expect(typeof service._ensureAgent).toBe('function');
     expect(typeof service.getMessages).toBe('function');
     expect(typeof service.createMessageStream).toBe('function');
     expect(typeof service.cancelCurrentStream).toBe('function');
