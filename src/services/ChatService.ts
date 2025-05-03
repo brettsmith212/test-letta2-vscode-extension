@@ -15,14 +15,9 @@ interface AnthropicTool {
 namespace Anthropic {
   export type Tool = AnthropicTool;
 }
-import { searchFiles, fileTools } from '../tools/fileTools';
-import { terminalTools, executeTerminalTool } from '../tools/terminalTools';
+// Tools imports removed as part of migration to Letta
 
-// Define type for tool calls
-interface ToolCall {
-  name: string;
-  input: any;
-}
+// ToolCall interface removed as part of migration to Letta
 
 export class ChatService {
   private _messages: Message[] = [];
@@ -94,32 +89,5 @@ export class ChatService {
     return this.lettaService.cancelCurrentStream();
   }
 
-  /**
-   * Handles a tool call (to be removed in Step 4)
-   * @param toolCall The tool call to handle
-   * @returns A promise that resolves to the result of the tool call
-   * @deprecated Will be removed in Step 4 as Letta handles tools internally
-   */
-  public async handleToolCall(toolCall: ToolCall): Promise<string> {
-    console.log("Tool call:", toolCall);
-    
-    const { name, input } = toolCall;
-    
-    // Handle file tools
-    if (name === "create_file" || name === "update_file" || 
-        name === "delete_file" || name === "read_file" || 
-        name === "search_files" || name === "list_files") {
-      // Import the executeTool function dynamically to avoid circular dependencies
-      const { executeTool } = require('../tools/fileTools');
-      return await executeTool(name, input, true);
-    }
-    
-    // Handle terminal tools
-    if (name === "run_command" || name === "read_terminal_output") {
-      console.log(`Executing terminal tool: ${name}`, input);
-      return await executeTerminalTool(name, input);
-    }
-    
-    throw new Error(`Unknown tool: ${name}`);
-  }
+  // Tool handling removed as part of migration to Letta
 }

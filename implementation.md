@@ -136,7 +136,7 @@
   - **User Instructions**: `npm test` – new panel test passes.
 
 ## 5 – Delete Obsolete Tool Modules
-- [ ] **Step 5‑1: Remove `tools` Directory**
+- [x] **Step 5‑1: Remove `tools` Directory**
   - **Task**: Delete `src/tools/fileTools.ts`, `src/tools/terminalTools.ts` and their exports.
   - **Description**: Completes migration away from VSCode‑side tooling.
   - **Files**:
