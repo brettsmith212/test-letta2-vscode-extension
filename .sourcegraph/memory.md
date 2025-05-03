@@ -1,18 +1,19 @@
 # Project Memory for VS Code Letta Chat Extension
 
 ## Project Summary
-This is a VS Code extension that integrates with Claude AI (to be migrated to Letta AI). It provides a chat interface to interact with AI directly within VS Code, allowing users to ask questions and get AI assistance without leaving the editor.
+This is a VS Code extension that integrates with Letta AI (migrated from Claude AI). It provides a chat interface to interact with AI directly within VS Code, allowing users to ask questions and get AI assistance without leaving the editor.
 
 ## Project Structure
 - `/src` - Main TypeScript source code
   - `extension.ts` - Extension entry point for VS Code activation
   - `/panels` - Contains ChatPanel for UI interaction
-  - `/services` - Contains ChatService for AI communications
-  - `/tools` - Contains tools for file and terminal operations
+  - `/services` - Contains ChatService and LettaService for AI communications
+  - `/tools` - Contains tools for file and terminal operations (to be removed)
   - `/views` - Contains webview-related code
 - `/webviews` - React components for the chat interface
 - `/media` - Static assets, including built webview
 - `/.storybook` - Storybook configuration for component development
+- `/test` - Vitest unit tests
 
 ## Development Commands
 - `npm run compile` - Compile TypeScript code
@@ -24,31 +25,39 @@ This is a VS Code extension that integrates with Claude AI (to be migrated to Le
 - `npm run storybook` - Start Storybook for UI development
 
 ## Implementation Notes
-- The extension is currently using Anthropic's Claude-3.5 API and will be migrated to Letta AI
-- The extension supports tool use, allowing Claude to interact with files and the terminal
-- The extension maintains conversation history within the ChatPanel instance
-- Authentication is done via API keys stored in VS Code settings
+- The extension is being migrated from Anthropic's Claude-3.5 API to Letta AI
+- Using a test-driven migration approach with small, incremental steps
+- LettaService handles communication with the Letta AI server
+- The extension maintains conversation history in the service layer
+- The migration removes tool-related code as that will be handled by Letta AI
 
 ## Architecture
 - `ChatPanel` - Manages the webview UI and handles user input
-- `ChatService` - Communicates with Claude API and manages message streams
+- `ChatService` - Wraps the Letta service and provides API compatibility
+- `LettaService` - Core service that communicates with the Letta AI server
+  - Handles agent initialization
+  - Manages message history
+  - Supports both streaming and non-streaming responses
 - React components in `/webviews` render the chat interface
 - Messages are passed between the extension and webview using the VS Code API
 
-## Migration Plan
-According to implementation.md, there's a detailed plan to migrate from Claude to Letta AI, including:
-1. Setting up a testing framework with Vitest
-2. Renaming commands and manifest
-3. Creating a new LettaService
-4. Refactoring ChatService
+## Migration Progress
+The migration follows the plan in implementation.md, with the following steps completed:
+1. ✅ Setting up a testing framework with Vitest
+2. ✅ Renaming commands and manifest (now using letta-chat.openChat)
+3. ✅ Created a new LettaService with the required functionality
+
+Remaining steps include:
+4. Refactoring ChatService to use LettaService
 5. Simplifying ChatPanel and removing tool-related code
-6. Cleaning up dependencies
+6. Cleaning up dependencies and removing Anthropic SDK
 
 ## Configuration
-- Users can set their Claude API key in VS Code settings under `claudeChat.apiKey`
-- The extension will switch to using a server URL configuration for Letta AI
+- The extension used to use Claude API key in VS Code settings under `claudeChat.apiKey`
+- It now uses a server URL configuration stored in `lettaChat.serverUrl`
+- The default server URL is http://localhost:8283
 
 ## Testing Strategy
-- Unit tests with Vitest
-- Integration tests using @vscode/test-cli
-- Storybook for UI component testing
+- Unit tests with Vitest for service and functionality verification
+- Tests use mocks to isolate components and avoid external dependencies
+- Integration tests will be added to verify end-to-end functionality

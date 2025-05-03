@@ -1,6 +1,32 @@
 import * as vscode from 'vscode';
-import Anthropic from '@anthropic-ai/sdk';
+// TODO: Remove @anthropic-ai/sdk dependency in Step 7-1
+// import Anthropic from '@anthropic-ai/sdk';
 import { Message, ContentBlock } from '../types';
+
+// Temporary type definitions to replace Anthropic SDK imports
+// These will be removed when we fully migrate to LettaService
+interface AnthropicTool {
+  name: string;
+  description: string;
+  input_schema: any;
+}
+
+interface AnthropicMessages {
+  create: (args: any, options?: any) => Promise<any>;
+}
+
+interface AnthropicClient {
+  messages: AnthropicMessages;
+}
+
+class Anthropic {
+  constructor(options: { apiKey: string }) {}
+  messages: AnthropicMessages = { create: async () => ({}) };
+}
+
+namespace Anthropic {
+  export type Tool = AnthropicTool;
+}
 import { searchFiles, fileTools } from '../tools/fileTools';
 import { terminalTools, executeTerminalTool } from '../tools/terminalTools';
 
@@ -83,7 +109,7 @@ export class ChatService {
       });
 
       const content = response.content
-        .map(block => block.type === 'text' ? block.text : '')
+        .map((block: any) => block.type === 'text' ? block.text : '')
         .filter(Boolean)
         .join('\n');
 

@@ -94,7 +94,7 @@
     - Optionally `npx vitest --run` for coverage.
 
 ## 3 – ChatService Refactor
-- [ ] **Step 3‑1: Strip Anthropic Imports**
+- [x] **Step 3‑1: Strip Anthropic Imports**
   - **Task**: Remove Anthropic import lines; add TODO for future deletion of devDep.
   - **Description**: Prepare file for rewrite without compile break (still returns dummy).
   - **Files**:
