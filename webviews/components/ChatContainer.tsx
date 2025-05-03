@@ -262,7 +262,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, messageInProgre
                                         !messageInProgress.content ? (
                                             <div className="flex items-center justify-center w-full h-8">
                                                 <Loader2 className="animate-spin h-5 w-5 text-[var(--vscode-editor-foreground)] opacity-80" />
-                                                <span className="ml-2 text-xs text-muted-foreground">Claude is thinking...</span>
+                                                <span className="ml-2 text-xs text-muted-foreground">Letta is thinking...</span>
                                             </div>
                                         ) : (
                                             <ReactMarkdown

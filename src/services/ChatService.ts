@@ -1,19 +1,13 @@
 import * as vscode from 'vscode';
-// TODO: Remove @anthropic-ai/sdk dependency in Step 7-1
-// import Anthropic from '@anthropic-ai/sdk';
+// Anthropic SDK dependency has been removed in Step 7-1
 import { Message, ContentBlock } from '../types';
 import { LettaService } from './LettaService';
 
-// Temporary type definitions for backward compatibility
-// These will be removed when we fully migrate away from tool-related code
-interface AnthropicTool {
+// Custom type definition for tool compatibility
+interface LettaTool {
   name: string;
   description: string;
-  input_schema: any;
-}
-
-namespace Anthropic {
-  export type Tool = AnthropicTool;
+  schema: any;
 }
 // Tools imports removed as part of migration to Letta
 
@@ -70,7 +64,7 @@ export class ChatService {
    * @param tools Optional tool definitions (maintained for API compatibility)
    * @returns A stream of response chunks
    */
-  public async createMessageStream(messages: Message[], tools?: Anthropic.Tool[]) {
+  public async createMessageStream(messages: Message[], tools?: LettaTool[]) {
     try {
       // Forward to LettaService
       const stream = await this.lettaService.createMessageStream(messages);

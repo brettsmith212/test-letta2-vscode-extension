@@ -1,4 +1,4 @@
-// This file configures Vite for building the React webview application for the Claude chat VSCode extension, located at the project root, with a custom entry point.
+// This file configures Vite for building the React webview application for the Letta chat VSCode extension, located at the project root, with a custom entry point.
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';

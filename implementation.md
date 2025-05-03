@@ -165,7 +165,7 @@
   - **User Instructions**: `npm test`.
 
 ## 7 – Dependency Cleanup
-- [ ] **Step 7‑1: Remove Anthropic Packages & DevDeps**
+- [x] **Step 7‑1: Remove Anthropic Packages & DevDeps**
   - **Task**: Delete `@anthropic-ai/sdk` from deps and any unused types.
   - **Description**: Finalize slimming of node_modules.
   - **Files**:
