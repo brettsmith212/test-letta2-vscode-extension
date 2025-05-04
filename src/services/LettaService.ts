@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { LettaClient } from '@letta-ai/letta-client';
 
-import { Message } from '../types';
+import { Message, ContentBlock } from '../types';
 
 /**
  * LettaService – Communicates with a running Letta server via the official
@@ -48,9 +48,11 @@ export class LettaService {
 				messages: [{ role: 'user', content: text }]
 			});
 
-			// The assistant reply is always the last assistant‑role message
-			const assistant = result.messages.find((m: any) => m.role === 'assistant');
-			const reply = assistant?.content ?? '(No response)';
+			// API returns either { messages } or { data: { messages } }
+			const messagesArr: any[] =
+				result?.messages ?? result?.data?.messages ?? [];
+
+			const reply = this._extractAssistantReply(messagesArr);
 
 			// Store & return
 			this._messages.push({ role: 'assistant', content: reply });
@@ -119,6 +121,59 @@ export class LettaService {
 	/* ------------------------------------------------------------------ *
 	 *  Internal helpers                                                  *
 	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Find the assistant reply in the list returned by the Letta API
+	 */
+	private _extractAssistantReply(messagesArr: any[]): string {
+		if (!Array.isArray(messagesArr) || messagesArr.length === 0) {
+			return '(No response)';
+		}
+
+		const assistantMsg =
+			this._findAssistantMessage(messagesArr) ?? messagesArr[messagesArr.length - 1];
+
+		const content = assistantMsg?.content;
+		return this._contentToString(content);
+	}
+
+	private _findAssistantMessage(messagesArr: any[]) {
+		return (
+			messagesArr.find(m => m.message_type === 'assistant_message') ??
+			messagesArr.find(m => m.role === 'assistant')
+		);
+	}
+
+	/**
+	 * Normalises any Letta content shape into a string for the UI
+	 *
+	 * - If the server already returns a plain string, pass it through
+	 * - If content is an array of content blocks, concatenate text blocks
+	 * - Fallback to JSON.stringify for unknown shapes
+	 */
+	private _contentToString(content: unknown): string {
+		if (typeof content === 'string') return content;
+
+		if (Array.isArray(content)) {
+			const texts = (content as ContentBlock[])
+				.filter(block => block && (block as any).type === 'text')
+				.map(block => (block as any).text)
+				.filter(Boolean);
+			if (texts.length) {
+				return texts.join('\n');
+			}
+		}
+
+		if (content) {
+			try {
+				return JSON.stringify(content);
+			} catch {
+				return String(content);
+			}
+		}
+
+		return '(No response)';
+	}
 
 	private _initializeClient() {
 		const baseUrl = this._getServerUrl();
