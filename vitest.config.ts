@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
     // VS Code extension tests require special mocking
     setupFiles: ['./test/setup.ts'],

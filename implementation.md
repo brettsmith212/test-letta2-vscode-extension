@@ -165,7 +165,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
     - `test/lettaService.agent.test.ts`
   - **Step Dependencies**: Step 1.1
 
-- [ ] **Step 5.2: React test for AgentBar interactions**
+- [x] **Step 5.2: React test for AgentBar interactions**
 
   - **Task**: Use testing‑library to render, select, and create.
   - **Description**: Prevents regressions in UI.
