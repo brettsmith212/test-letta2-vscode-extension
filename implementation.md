@@ -41,7 +41,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 1.1
   - **User Instructions**: N/A
 
-- [ ] **Step 1.3: Extension‑host message handlers**
+- [x] **Step 1.3: Extension‑host message handlers**
 
   - **Task**: In `ChatPanel` `onDidReceiveMessage`, add handlers for `listAgents`, `selectAgent`, `createAgent`.
   - **Description**: Bridges UI requests to LettaService.

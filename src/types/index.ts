@@ -29,4 +29,7 @@ export interface WebviewMessage {
     command: string;
     text?: string;
     commandId?: string;
+    agentId?: string;
+    agentName?: string;
+    model?: string;
 }

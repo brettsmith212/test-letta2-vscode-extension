@@ -68,6 +68,19 @@ export class ChatPanel {
                     case 'newThread':
                         this._startNewThread();
                         break;
+                    case 'listAgents':
+                        await this._handleListAgents();
+                        break;
+                    case 'selectAgent':
+                        if (message.agentId) {
+                            await this._handleSelectAgent(message.agentId);
+                        }
+                        break;
+                    case 'createAgent':
+                        if (message.agentName) {
+                            await this._handleCreateAgent(message.agentName, message.model);
+                        }
+                        break;
                     case 'restoreHistory':
                         // Send all messages in history to webview
                         this._conversationHistory.forEach((msg, index) => {
@@ -187,6 +200,88 @@ export class ChatPanel {
         this._panel.webview.postMessage({
             command: 'clearChat'
         });
+    }
+
+    /**
+     * Fetch the list of available agents from the service and send it to the webview
+     */
+    private async _handleListAgents() {
+        try {
+            // We need to first get access to the LettaService through ChatService
+            const agentList = await this._chatService['lettaService'].listAgents();
+            
+            // Send the agent list to the webview
+            this._panel.webview.postMessage({
+                command: 'agentList',
+                agents: agentList
+            } as any);
+        } catch (error) {
+            console.error('Error fetching agent list:', error);
+            this._panel.webview.postMessage({
+                command: 'error',
+                text: `Failed to fetch agents: ${error instanceof Error ? error.message : String(error)}`
+            });
+        }
+    }
+
+    /**
+     * Handle a request to select an agent
+     */
+    private async _handleSelectAgent(agentId: string) {
+        try {
+            // Select the agent via ChatService -> LettaService
+            await this._chatService['lettaService'].selectAgent(agentId);
+            
+            // Start a new conversation thread
+            this._conversationHistory = [];
+            
+            // Notify the webview that the agent was selected
+            this._panel.webview.postMessage({
+                command: 'agentSelected',
+                agentId
+            });
+            
+            // Clear the chat UI
+            this._panel.webview.postMessage({
+                command: 'clearChat'
+            });
+        } catch (error) {
+            console.error('Error selecting agent:', error);
+            this._panel.webview.postMessage({
+                command: 'error',
+                text: `Failed to select agent: ${error instanceof Error ? error.message : String(error)}`
+            });
+        }
+    }
+
+    /**
+     * Handle a request to create a new agent
+     */
+    private async _handleCreateAgent(name: string, model?: string) {
+        try {
+            // Create a new agent via ChatService -> LettaService
+            const newAgent = await this._chatService['lettaService'].createAgent({ 
+                name,
+                model
+            });
+            
+            // Notify the webview that the agent was created
+            this._panel.webview.postMessage({
+                command: 'agentCreated',
+                agent: newAgent
+            } as any);
+            
+            // Clear the chat UI since we're using a new agent
+            this._panel.webview.postMessage({
+                command: 'clearChat'
+            });
+        } catch (error) {
+            console.error('Error creating agent:', error);
+            this._panel.webview.postMessage({
+                command: 'error',
+                text: `Failed to create agent: ${error instanceof Error ? error.message : String(error)}`
+            });
+        }
     }
 
     public reveal() {

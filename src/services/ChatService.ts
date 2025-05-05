@@ -28,7 +28,8 @@ interface LettaTool {
 
 export class ChatService {
   private _messages: Message[] = [];
-  private lettaService: LettaService;
+  // Made public to allow direct access from ChatPanel
+  public readonly lettaService: LettaService;
   
   constructor(context?: vscode.ExtensionContext) {
     // Initialize LettaService with extension context for persistence
