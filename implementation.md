@@ -82,7 +82,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 3 – Frontend : UI Components
 
-- [ ] **Step 3.1: Create AgentBar component**
+- [x] **Step 3.1: Create AgentBar component**
 
   - **Task**: New component in `webviews/components/AgentBar.tsx` showing Radix `Select` (or custom) with options + “Create new agent…”.
   - **Description**: Visual selector placed above existing Header.
