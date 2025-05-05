@@ -1,5 +1,7 @@
 export type ContentBlock = TextBlock | ToolUseBlock | ToolResultBlock;
 
+export * from './agent';
+
 export interface TextBlock {
     type: 'text';
     text: string;

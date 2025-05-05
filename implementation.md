@@ -8,7 +8,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 0 – Project Scaffolding & Types
 
-- [ ] **Step 0.1: Define shared Agent types**
+- [x] **Step 0.1: Define shared Agent types**
   - **Task**: Create/extend a `src/types/agent.ts` module with `AgentSummary { id: string; name: string; model?: string }`.
   - **Description**: A single place for agent DTOs avoids stringly‑typed objects between host & UI.
   - **Files**:
