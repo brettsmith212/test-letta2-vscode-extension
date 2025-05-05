@@ -108,6 +108,53 @@
   margin: 0;
 }
 
+/* Agent Bar styling */
+.agent-bar {
+  background-color: var(--vscode-sideBar-background);
+  color: var(--vscode-sideBar-foreground);
+  padding: 8px 12px;
+}
+
+.agent-bar-label {
+  color: var(--vscode-descriptionForeground);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.agent-select {
+  background-color: var(--vscode-dropdown-background);
+  color: var(--vscode-dropdown-foreground);
+  border-color: var(--vscode-dropdown-border);
+}
+
+.agent-select:focus {
+  border-color: var(--vscode-focusBorder);
+  outline: none;
+}
+
+.agent-form {
+  background-color: var(--vscode-sideBar-background);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.agent-form-header {
+  color: var(--vscode-editor-foreground);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.agent-input {
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border-color: var(--vscode-input-border);
+}
+
+.agent-input:focus {
+  border-color: var(--vscode-focusBorder);
+  outline: none;
+}
+
 /* Fix for chat container layout issues */
 .chat-message-container {
   width: 100%;

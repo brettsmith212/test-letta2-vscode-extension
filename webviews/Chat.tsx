@@ -194,7 +194,7 @@ const ChatInner: React.FC = () => {
 
     return (
         <div className="flex flex-col h-screen bg-background">
-            <div className="flex flex-col border-b border-border agent-bar-separator">
+            <div className="flex flex-col agent-bar-separator">
                 <Header onNewThread={startNewThread} />
                 <AgentBar 
                     agents={agents} 

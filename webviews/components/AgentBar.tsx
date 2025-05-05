@@ -47,16 +47,16 @@ const AgentBar: React.FC<AgentBarProps> = ({
 
   if (showCreateForm) {
     return (
-      <div className="p-2 border-b">
-        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2">
-          <div className="text-sm font-medium mb-1">Create new agent</div>
+      <div className="agent-bar">
+        <form onSubmit={handleCreateSubmit} className="agent-form flex flex-col gap-2">
+          <div className="agent-form-header text-sm font-medium mb-1">Create new agent</div>
           <div className="flex gap-2">
             <input
               type="text"
               placeholder="Agent name"
               value={newAgentName}
               onChange={(e) => setNewAgentName(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors"
+              className="agent-input flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors"
               autoFocus
               required
             />
@@ -65,7 +65,7 @@ const AgentBar: React.FC<AgentBarProps> = ({
               placeholder="Model (optional)"
               value={newAgentModel}
               onChange={(e) => setNewAgentModel(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors"
+              className="agent-input flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors"
             />
           </div>
           <div className="flex justify-end gap-2 mt-1">
@@ -82,15 +82,15 @@ const AgentBar: React.FC<AgentBarProps> = ({
   }
 
   return (
-    <div className="p-2 border-b">
+    <div className="agent-bar border-b">
       <div className="flex items-center">
-        <div className="text-sm font-medium mr-2">Agent:</div>
+        <div className="agent-bar-label text-sm font-medium mr-2">Agent:</div>
         <div className="relative">
           <select
             value={activeAgentId || ''}
             onChange={handleSelectChange}
             className={cn(
-              "h-9 w-[240px] rounded-md border border-input bg-background pr-8 pl-3 py-2 text-sm shadow-sm",
+              "agent-select h-9 w-[240px] rounded-md border pr-8 pl-3 py-2 text-sm shadow-sm",
               "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
               "appearance-none" // Remove default styling
             )}
@@ -108,7 +108,7 @@ const AgentBar: React.FC<AgentBarProps> = ({
           {/* Custom dropdown arrow */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
             <svg
-              className="h-4 w-4 opacity-50"
+              className="h-4 w-4 opacity-70"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
