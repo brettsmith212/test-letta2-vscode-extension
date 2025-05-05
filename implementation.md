@@ -50,7 +50,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 1.1
   - **User Instructions**: N/A
 
-- [ ] **Step 1.4: Emit replies to web‑view**
+- [x] **Step 1.4: Emit replies to web‑view**
   - **Task**: Use `webview.postMessage` to send `agentList`, `agentCreated`, `agentSelected` events.
   - **Description**: Completes the round‑trip communication.
   - **Files**:
@@ -60,7 +60,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 2 – Frontend : Data wiring
 
-- [ ] **Step 2.1: VSCodeContext – expose agent API**
+- [x] **Step 2.1: VSCodeContext – expose agent API**
 
   - **Task**: Extend `VSCodeContext` typing for new commands.
   - **Description**: Type‑safe `postMessage` wrappers in React.
