@@ -19,7 +19,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 1 – Backend : Agent Management
 
-- [ ] **Step 1.1: Add list & select logic in LettaService**
+- [x] **Step 1.1: Add list & select logic in LettaService**
 
   - **Task**:
     1. Add private `_activeAgentId` (rename from `_agentId`) and `_loadAgents()` that calls `this._client.agents.list()`.

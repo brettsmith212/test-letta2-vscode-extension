@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { LettaClient } from "@letta-ai/letta-client";
 
-import { Message, ContentBlock } from "../types";
+import { Message, ContentBlock, AgentSummary } from "../types";
 
 /**
  * LettaService – Communicates with a running Letta server via the official
@@ -16,7 +16,8 @@ export class LettaService {
 
   // Letta SDK client & active agent
   private _client: LettaClient | null = null;
-  private _agentId: string | null = null;
+  private _activeAgentId: string | null = null;
+  private _agents: AgentSummary[] | null = null;
 
   // For cancelling a streaming request
   private _abortController: AbortController | null = null;
@@ -32,6 +33,94 @@ export class LettaService {
   /**
    * Sends a single message and returns the assistant’s full reply
    */
+  /**
+   * List available agents from the Letta server
+   */
+  public async listAgents(): Promise<AgentSummary[]> {
+    if (!this._client) {
+      throw new Error("Letta client not initialised");
+    }
+
+    // Cache the agent list to avoid repeated API calls
+    if (!this._agents) {
+      await this._loadAgents();
+    }
+
+    return this._agents || [];
+  }
+
+  /**
+   * Select an existing agent to use for chat
+   */
+  public async selectAgent(id: string): Promise<void> {
+    if (!this._client) {
+      throw new Error("Letta client not initialised");
+    }
+    
+    // Validate the agent exists
+    const agents = await this.listAgents();
+    const exists = agents.some(agent => agent.id === id);
+    
+    if (!exists) {
+      throw new Error(`Agent with ID ${id} not found`);
+    }
+    
+    this._activeAgentId = id;
+    this._messages = []; // Clear conversation history for new agent
+  }
+
+  /**
+   * Create a new agent with the given options
+   */
+  public async createAgent(options: { name: string, model?: string }): Promise<AgentSummary> {
+    if (!this._client) {
+      throw new Error("Letta client not initialised");
+    }
+
+    try {
+      const agent: any = await this._client.agents.create({
+        name: options.name,
+        model: options.model || "openai/gpt-4o-mini",
+        embedding: "openai/text-embedding-ada-002",
+        memoryBlocks: [
+          {
+            label: "persona",
+            value: "You are a helpful programming assistant living inside Visual Studio Code.",
+          },
+          {
+            label: "human",
+            value: "",
+          },
+        ],
+      });
+
+      const newAgent: AgentSummary = {
+        id: agent.id,
+        name: agent.name,
+        model: agent.model,
+      };
+
+      // Update cache and select the new agent
+      if (this._agents) {
+        this._agents.push(newAgent);
+      } else {
+        this._agents = [newAgent];
+      }
+      
+      this._activeAgentId = newAgent.id;
+      return newAgent;
+    } catch (err) {
+      console.error("LettaService.createAgent – SDK error:", err);
+      throw new Error(
+        `Failed to create agent: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+  }
+
+
+  /**
+   * Sends a single message and returns the assistant's full reply
+   */
   public async sendMessage(text: string): Promise<string> {
     if (!this._client) {
       throw new Error("Letta client not initialised");
@@ -45,7 +134,7 @@ export class LettaService {
 
     try {
       const result: any = await this._client.agents.messages.create(
-        this._agentId!,
+        this._activeAgentId!,
         {
           messages: [{ role: "user", content: text }],
         }
@@ -90,7 +179,7 @@ export class LettaService {
       // The SDK currently supports streaming via create({ stream: true })
       const stream: AsyncIterable<any> = await (
         this._client as any
-      ).agents.messages.create(this._agentId!, {
+      ).agents.messages.create(this._activeAgentId!, {
         messages: [{ role: "user", content: String(lastUser.content) }],
         stream: true, // flag to request SSE/streaming
         signal: this._abortController.signal,
@@ -196,31 +285,54 @@ export class LettaService {
   }
 
   /**
+   * Load all agents from the Letta server
+   */
+  private async _loadAgents(): Promise<void> {
+    try {
+      if (!this._client) throw new Error("Letta client not initialised");
+      
+      const response: any = await this._client.agents.list();
+      const agents = response?.agents || response?.data?.agents || [];
+      
+      this._agents = agents.map((agent: any) => ({
+        id: agent.id,
+        name: agent.name,
+        model: agent.model
+      }));
+      
+      console.log(`[LettaService] Loaded ${this._agents?.length || 0} agents`);
+    } catch (err) {
+      console.error("LettaService._loadAgents – SDK error:", err);
+      this._agents = [];
+    }
+  }
+
+  /**
    * Create a new agent once per extension session
    */
   private async _ensureAgent() {
     if (!this._client) throw new Error("Letta client not initialised");
-    if (this._agentId) return;
+    if (this._activeAgentId) return;
 
-    const agent: any = await this._client.agents.create({
+    // If we have agents already, use the first one instead of creating a new one
+    if (!this._agents) {
+      await this._loadAgents();
+    }
+    
+    if (this._agents && this._agents.length > 0) {
+      this._activeAgentId = this._agents[0].id;
+      console.log("[LettaService] Using existing agent:", this._activeAgentId);
+      return;
+    }
+
+    // No agents found, create a new one
+    const agent = await this.createAgent({
       name: "vscode-chat-agent",
-      model: "openai/gpt-4o-mini", // adjust to available model on your server
-      embedding: "openai/text-embedding-ada-002",
-      memoryBlocks: [
-        {
-          label: "persona",
-          value:
-            "You are a helpful programming assistant living inside Visual Studio Code.",
-        },
-        {
-          label: "human",
-          value: "",
-        },
-      ],
+      model: "openai/gpt-4o-mini"
     });
 
-    this._agentId = agent.id;
-    console.log("[LettaService] Agent created:", this._agentId);
+    this._activeAgentId = agent.id;
+    console.log("[LettaService] Agent created:", this._activeAgentId);
   }
 
   /* ------------------------------------------------------------------ *
@@ -245,7 +357,7 @@ export class LettaService {
   ): LettaService {
     const svc = new LettaService();
     svc._client = mockClient;
-    svc._agentId = mockAgentId;
+    svc._activeAgentId = mockAgentId;
     return svc;
   }
 }
