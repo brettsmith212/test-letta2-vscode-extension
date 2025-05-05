@@ -69,7 +69,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 1.4
   - **User Instructions**: N/A
 
-- [ ] **Step 2.2: Chat.tsx – fetch & store agent list**
+- [x] **Step 2.2: Chat.tsx – fetch & store agent list**
   - **Task**:
     1. Add `agents` & `activeAgentId` state.
     2. On mount send `{ command: 'listAgents' }`.

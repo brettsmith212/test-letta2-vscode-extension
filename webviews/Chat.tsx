@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AgentSummary } from '../src/types/agent';
 import { VSCodeProvider, useVSCode } from './VSCodeContext';
 import Header from './components/Header';
 import ChatContainer from './components/ChatContainer';
@@ -19,6 +20,8 @@ interface Message {
 interface WebviewState {
     messages: Message[];
     errorMessages: string[];
+    agents?: AgentSummary[];
+    activeAgentId?: string;
 }
 
 const ChatInner: React.FC = () => {
@@ -34,12 +37,27 @@ const ChatInner: React.FC = () => {
         const savedState = vscode.getState() as WebviewState | undefined;
         return savedState?.errorMessages || [];
     });
+    
+    // New agent-related state
+    const [agents, setAgents] = useState<AgentSummary[]>(() => {
+        const savedState = vscode.getState() as WebviewState | undefined;
+        return savedState?.agents || [];
+    });
+    const [activeAgentId, setActiveAgentId] = useState<string | undefined>(() => {
+        const savedState = vscode.getState() as WebviewState | undefined;
+        return savedState?.activeAgentId;
+    });
 
-    // Persist state whenever messages or errorMessages change
+    // Persist state whenever messages, errorMessages, agents or activeAgentId change
     // This only persists state within the current VSCode session for tab switching
     useEffect(() => {
-        vscode.setState({ messages, errorMessages });
-    }, [messages, errorMessages, vscode]);
+        vscode.setState({ messages, errorMessages, agents, activeAgentId });
+    }, [messages, errorMessages, agents, activeAgentId, vscode]);
+    
+    // Request agent list when component mounts
+    useEffect(() => {
+        vscode.listAgents();
+    }, [vscode]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -103,7 +121,27 @@ const ChatInner: React.FC = () => {
                     setMessages([]);
                     setMessageInProgress(null);
                     setErrorMessages([]);
-                    vscode.setState({ messages: [], errorMessages: [] });
+                    vscode.setState({ messages: [], errorMessages: [], agents, activeAgentId });
+                    break;
+                
+                // Agent-related message handlers
+                case 'agentList':
+                    if (message.agents && Array.isArray(message.agents)) {
+                        setAgents(message.agents);
+                    }
+                    break;
+                
+                case 'agentCreated':
+                    if (message.agent) {
+                        setAgents(prev => [...prev, message.agent]);
+                        setActiveAgentId(message.agent.id);
+                    }
+                    break;
+                
+                case 'agentSelected':
+                    if (message.agentId) {
+                        setActiveAgentId(message.agentId);
+                    }
                     break;
             }
         };
