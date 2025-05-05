@@ -10,8 +10,12 @@ This is a VS Code extension that integrates with Letta AI. It provides a chat in
   - `extension.ts` - Extension entry point for VS Code activation
   - `/panels` - Contains ChatPanel for UI interaction
   - `/services` - Contains ChatService and LettaService for AI communications
+  - `/types` - TypeScript interfaces and type definitions
   - `/views` - Contains webview-related code
+  - `/lib` - Utility functions
 - `/webviews` - React components for the chat interface
+  - `/components` - UI components including AgentBar
+  - `/hooks` - React hooks for state management and UI features
 - `/media` - Static assets, including built webview
 - `/.storybook` - Storybook configuration for component development
 - `/test` - Vitest unit tests
@@ -28,41 +32,36 @@ This is a VS Code extension that integrates with Letta AI. It provides a chat in
 
 ## Implementation Notes
 
-- The extension is being migrated from Anthropic's Claude-3.5 API to Letta AI
-- Using a test-driven migration approach with small, incremental steps
-- LettaService handles communication with the Letta AI server
-- The extension maintains conversation history in the service layer
-- The migration removes tool-related code as that will be handled by Letta AI
+- The extension integrates with Letta AI's agents-based system
+- Users can select existing agents or create new ones from the UI
+- Agent IDs are persisted in VS Code's global state for continuity between sessions
+- Communication with the Letta server happens through the official TypeScript SDK
+- The UI is React-based with Tailwind CSS for styling
 
 ## Architecture
 
-- `ChatPanel` - Manages the webview UI and handles user input
+- `ChatPanel` - Manages the webview UI and coordinates agent operations
 - `ChatService` - Wraps the Letta service and provides API compatibility
 - `LettaService` - Core service that communicates with the Letta AI server
-  - Handles agent initialization
-  - Manages message history
+  - Manages agent discovery, selection and creation
+  - Handles conversation history for each agent
   - Supports both streaming and non-streaming responses
+- `AgentBar` - UI component that shows available agents and allows creating new ones
 - React components in `/webviews` render the chat interface
 - Messages are passed between the extension and webview using the VS Code API
 
-## Migration Progress
+## Agent Management
 
-The migration followed the plan in implementation.md, and all steps have been successfully completed:
-
-1. ✅ Setting up a testing framework with Vitest
-2. ✅ Renaming commands and manifest (now using letta-chat.openChat)
-3. ✅ Created a new LettaService with the required functionality
-4. ✅ Refactored ChatService to use LettaService
-5. ✅ Simplified ChatPanel and removed tool-related code
-6. ✅ Removed the tools directory
-7. ✅ Updated configuration to use server URL instead of API key
-8. ✅ Cleaned up dependencies and removed Anthropic SDK
-9. ✅ Added integration test documentation and updated README/comments
+- Agents are listed from the server on extension activation
+- Users can select any existing agent or create a new one
+- The active agent ID is persisted in VSCode's global state
+- When switching agents, the conversation history is cleared
+- If there's only one agent available, it's auto-selected for convenience
+- Creating a new agent automatically selects it
 
 ## Configuration
 
-- The extension used to use Claude API key in VS Code settings under `claudeChat.apiKey`
-- It now uses a server URL configuration stored in `lettaChat.serverUrl`
+- Server URL configuration is stored in `lettaChat.serverUrl`
 - The default server URL is http://localhost:8283
 
 ## Testing Strategy
@@ -70,6 +69,7 @@ The migration followed the plan in implementation.md, and all steps have been su
 - Unit tests with Vitest for service and functionality verification
 - Tests use mocks to isolate components and avoid external dependencies
 - For VS Code components like ChatPanel, we use simplified tests with mocks to verify messaging contracts
+- Agent functionality has specific tests in `lettaService.agent.test.ts`
 - Integration tests use a hybrid approach that:
   - Tests core services can be instantiated and interact correctly
   - Verifies the Letta server is accessible with HTTP requests
@@ -80,14 +80,16 @@ The migration followed the plan in implementation.md, and all steps have been su
 
 - **VS Code Extension Testing**: Testing VS Code extensions, especially UI components like WebViews, requires specialized approaches. The VS Code API is difficult to mock in standard test environments, and while tools like @vscode/test-electron exist, they have significant limitations in headless environments.
 
-- **Staged Migration**: The incremental, test-driven approach works well for migration projects, allowing us to verify each change independently.
+- **Testing Strategies for Services with External Dependencies**: When testing services that interact with external systems (like the Letta server), use a combination of unit tests with mocks and simplified integration tests. Mock the external dependencies in unit tests, and use targeted integration tests for the boundaries.
 
-- **Adapter Pattern**: We used an adapter pattern where ChatService wraps LettaService, allowing us to maintain the same API for the UI layer while changing the underlying implementation.
+- **React Component Testing**: When testing React components that interact with extension host, consider writing tests that focus on component behavior rather than testing the host communication directly.
 
-- **Tool Removal**: Removing the tool-related code simplified ChatPanel significantly, making it solely responsible for UI interactions. The AI's tool handling is now managed by Letta AI itself, reducing the extension's complexity.
+- **Adapter Pattern**: Using an adapter pattern (ChatService wraps LettaService) allows us to maintain the same API for the UI layer while changing the underlying implementation.
 
-- **Type Compatibility**: When migrating between services with similar but non-identical types (like Message interfaces), we need to ensure type compatibility or provide conversion functions.
+- **Type Safety**: Using strong typing throughout the codebase, especially for messages between UI and extension host, helps prevent runtime errors. Define shared interface types in a common location (like src/types).
 
-- **Hybrid Integration Testing**: For complex test environments like VS Code extensions, a hybrid approach to integration testing is more practical than a full end-to-end approach. By testing that core services can communicate and verifying external service accessibility, we gain confidence in the system without the complexity of launching VS Code instances in CI environments.
+- **Initialization Timing**: Be careful with timing when initializing components that communicate across boundaries (like webview to extension host). Use explicit ready signals and appropriate delays to ensure components are fully initialized before attempting to communicate.
 
-- **Comprehensive Headers**: Adding detailed header comments to key service files significantly improves code maintenance. The headers should explain not just what the component does, but its role in the overall architecture and relationships with other components.
+- **Graceful Error Handling**: Implement robust error handling at API boundaries, especially when dealing with external services. Provide meaningful feedback to users when operations fail.
+
+- **VS Code State Management**: Use VS Code's globalState for persisting user preferences that should survive across sessions. This is ideal for saving settings like the active agent ID.

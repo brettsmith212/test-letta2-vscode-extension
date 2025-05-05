@@ -157,7 +157,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 5 – Tests
 
-- [ ] **Step 5.1: Unit tests for LettaService agent methods**
+- [x] **Step 5.1: Unit tests for LettaService agent methods**
 
   - **Task**: Mock SDK `agents.list` & `agents.create`, assert caching & persistence.
   - **Description**: Protects core logic.
