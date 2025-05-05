@@ -92,7 +92,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 2.2
   - **User Instructions**: N/A
 
-- [ ] **Step 3.2: Integrate AgentBar into Chat layout**
+- [x] **Step 3.2: Integrate AgentBar into Chat layout**
 
   - **Task**: In `Chat.tsx` wrap `<Header>` and `<AgentBar>` inside a column.
   - **Description**: Ensures consistent placement & styling.

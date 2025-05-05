@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AgentSummary } from '../src/types/agent';
 import { VSCodeProvider, useVSCode } from './VSCodeContext';
 import Header from './components/Header';
+import AgentBar from './components/AgentBar';
 import ChatContainer from './components/ChatContainer';
 import InputContainer from './components/InputContainer';
 import { Toaster } from './components/ui/toaster';
@@ -182,9 +183,26 @@ const ChatInner: React.FC = () => {
         vscode.postMessage({ command: 'newThread' });
     };
 
+    // Handlers for the AgentBar component
+    const handleSelectAgent = (agentId: string) => {
+        vscode.selectAgent(agentId);
+    };
+
+    const handleCreateAgent = (name: string, model?: string) => {
+        vscode.createAgent(name, model);
+    };
+
     return (
         <div className="flex flex-col h-screen bg-background">
-            <Header onNewThread={startNewThread} />
+            <div className="flex flex-col border-b border-border agent-bar-separator">
+                <Header onNewThread={startNewThread} />
+                <AgentBar 
+                    agents={agents} 
+                    activeAgentId={activeAgentId} 
+                    onSelectAgent={handleSelectAgent} 
+                    onCreateAgent={handleCreateAgent} 
+                />
+            </div>
             <ChatContainer
                 messages={messages}
                 messageInProgress={messageInProgress}
@@ -193,7 +211,12 @@ const ChatInner: React.FC = () => {
                 onCancelCommand={handleCancelCommand}
                 isProcessing={isProcessing}
             />
-            <InputContainer onSend={sendMessage} onCancel={cancelMessage} isProcessing={isProcessing} />
+            <InputContainer 
+                onSend={sendMessage} 
+                onCancel={cancelMessage} 
+                isProcessing={isProcessing} 
+                disabled={!activeAgentId} 
+            />
         </div>
     );
 };

@@ -102,6 +102,12 @@
   }
 }
 
+/* Styling for AgentBar */
+.agent-bar-separator {
+  border-bottom: 1px solid var(--vscode-panel-border);
+  margin: 0;
+}
+
 /* Fix for chat container layout issues */
 .chat-message-container {
   width: 100%;

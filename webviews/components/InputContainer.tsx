@@ -7,9 +7,10 @@ interface InputContainerProps {
     onSend: (text: string) => void;
     onCancel: () => void;
     isProcessing: boolean;
+    disabled?: boolean;
 }
 
-const InputContainer: React.FC<InputContainerProps> = ({ onSend, onCancel, isProcessing }) => {
+const InputContainer: React.FC<InputContainerProps> = ({ onSend, onCancel, isProcessing, disabled = false }) => {
     const [input, setInput] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -39,8 +40,8 @@ const InputContainer: React.FC<InputContainerProps> = ({ onSend, onCancel, isPro
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type a message..."
-                    disabled={isProcessing}
+                    placeholder={disabled ? "Select an agent to start chatting..." : "Type a message..."}
+                    disabled={isProcessing || disabled}
                     className="min-h-[44px] max-h-[200px] bg-[var(--vscode-input-background)] text-[var(--vscode-input-foreground)] border-[var(--vscode-input-border)] focus-visible:ring-[var(--vscode-focusBorder)] placeholder:text-[var(--vscode-input-placeholderForeground)]"
                     style={{ resize: 'none' }}
                 />
@@ -56,7 +57,7 @@ const InputContainer: React.FC<InputContainerProps> = ({ onSend, onCancel, isPro
                 ) : (
                     <Button
                         onClick={handleSend}
-                        disabled={!input.trim()}
+                        disabled={!input.trim() || disabled}
                         size="icon"
                         className="bg-[var(--vscode-button-background)] text-[var(--vscode-button-foreground)] hover:bg-[var(--vscode-button-hoverBackground)] disabled:opacity-50"
                         title="Send"
