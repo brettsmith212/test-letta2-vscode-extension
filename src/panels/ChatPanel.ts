@@ -118,6 +118,17 @@ export class ChatPanel {
 
     private async _handleSendMessage(text: string) {
         try {
+            // First, ensure the UI shows an error if no agent is selected
+            const hasSelectedAgent = await this._ensureAgentSelected();
+            if (!hasSelectedAgent) {
+                // Notify the webview to show error
+                this._panel.webview.postMessage({
+                    command: 'error',
+                    text: 'Please select an agent before sending messages.'
+                });
+                return;
+            }
+            
             // Add user message to history
             this._conversationHistory.push({ role: 'user', content: text });
 
@@ -171,6 +182,34 @@ export class ChatPanel {
                 command: 'error',
                 text: errorMessage
             });
+        }
+    }
+
+    /**
+     * Helper method to ensure an agent is selected before sending messages
+     * @returns boolean indicating if an agent is selected
+     */
+    private async _ensureAgentSelected(): Promise<boolean> {
+        try {
+            // Get the LettaService instance from ChatService
+            const lettaService = this._chatService['lettaService'];
+            
+            // Check if there's an active agent
+            const agents = await lettaService.listAgents();
+            if (agents.length === 0) {
+                // Request the user to create an agent
+                this._panel.webview.postMessage({
+                    command: 'error',
+                    text: 'No agents available. Please create a new agent to start chatting.'
+                });
+                return false;
+            }
+            
+            // Let the UI handle the display for agent selection
+            return true;
+        } catch (error) {
+            console.error('Error checking for selected agent:', error);
+            return false;
         }
     }
 

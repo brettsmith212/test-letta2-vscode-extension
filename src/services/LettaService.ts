@@ -144,9 +144,10 @@ export class LettaService {
     if (!this._client) {
       throw new Error("Letta client not initialised");
     }
-
-    // Ensure we have / reuse an agent
-    await this._ensureAgent();
+    
+    if (!this._activeAgentId) {
+      throw new Error("No agent selected. Please select an agent before sending messages.");
+    }
 
     // Record user message locally
     this._messages.push({ role: "user", content: text });
@@ -185,8 +186,10 @@ export class LettaService {
     if (!this._client) {
       throw new Error("Letta client not initialised");
     }
-
-    await this._ensureAgent();
+    
+    if (!this._activeAgentId) {
+      throw new Error("No agent selected. Please select an agent before sending messages.");
+    }
 
     // Find the last user message
     const lastUser = [...messages].reverse().find((m) => m.role === "user");

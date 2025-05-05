@@ -102,7 +102,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 3.1
   - **User Instructions**: N/A
 
-- [ ] **Step 3.3: Create “New agent” inline form**
+- [x] **Step 3.3: Create “New agent” inline form**
   - **Task**: If user selects “Create new…”, replace dropdown with input + confirm/cancel buttons, then send `createAgent`.
   - **Description**: Minimises pop‑ups; matches VS Code design.
   - **Files**:
@@ -112,7 +112,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
 
 ## 4 – Chat Flow Adjustments
 
-- [ ] **Step 4.1: Disable chat until agent selected**
+- [x] **Step 4.1: Disable chat until agent selected**
 
   - **Task**: `InputContainer` receives `disabled` prop when `activeAgentId` is null; UI shows subtle hint.
   - **Description**: Prevents accidental API calls.
@@ -122,7 +122,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 2.2
   - **User Instructions**: N/A
 
-- [ ] **Step 4.2: Pass agent id to LettaService**
+- [x] **Step 4.2: Pass agent id to LettaService**
   - **Task**: Modify `LettaService.sendMessage` / `createMessageStream` to throw if no agent selected; `ChatPanel` must call `selectAgent` before first message.
   - **Description**: Guarantees backend consistency.
   - **Files**:
