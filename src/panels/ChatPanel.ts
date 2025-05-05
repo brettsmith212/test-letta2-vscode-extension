@@ -33,7 +33,7 @@ export class ChatPanel {
 
     private constructor(private readonly _extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
         this._context = context;
-        this._chatService = new ChatService();
+        this._chatService = new ChatService(context);
 
         // Initialize with empty conversation history (removed loading from globalState)
         this._conversationHistory = [];

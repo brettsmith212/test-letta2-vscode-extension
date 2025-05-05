@@ -22,8 +22,21 @@ export class LettaService {
   // For cancelling a streaming request
   private _abortController: AbortController | null = null;
 
-  constructor() {
+  private readonly _extensionContext: vscode.ExtensionContext | undefined;
+
+  constructor(context?: vscode.ExtensionContext) {
+    this._extensionContext = context;
     this._initializeClient();
+    
+    // Try to restore previously selected agent
+    if (this._extensionContext) {
+      const savedAgentId = this._extensionContext.globalState.get<string>('letta.activeAgent');
+      if (savedAgentId) {
+        console.log(`[LettaService] Restoring saved agent: ${savedAgentId}`);
+        // We'll set the ID directly but defer validation until first use
+        this._activeAgentId = savedAgentId;
+      }
+    }
   }
 
   /* ------------------------------------------------------------------ *
@@ -67,6 +80,12 @@ export class LettaService {
     
     this._activeAgentId = id;
     this._messages = []; // Clear conversation history for new agent
+    
+    // Persist the selected agent ID
+    if (this._extensionContext) {
+      this._extensionContext.globalState.update('letta.activeAgent', id);
+      console.log(`[LettaService] Saved agent preference: ${id}`);
+    }
   }
 
   /**
@@ -353,9 +372,10 @@ export class LettaService {
    * ------------------------------------------------------------------ */
   public static createForTesting(
     mockClient: any,
-    mockAgentId = "agent-test-id"
+    mockAgentId = "agent-test-id",
+    mockContext?: vscode.ExtensionContext
   ): LettaService {
-    const svc = new LettaService();
+    const svc = new LettaService(mockContext);
     svc._client = mockClient;
     svc._activeAgentId = mockAgentId;
     return svc;

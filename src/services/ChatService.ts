@@ -30,9 +30,9 @@ export class ChatService {
   private _messages: Message[] = [];
   private lettaService: LettaService;
   
-  constructor() {
-    // Initialize a singleton LettaService
-    this.lettaService = new LettaService();
+  constructor(context?: vscode.ExtensionContext) {
+    // Initialize LettaService with extension context for persistence
+    this.lettaService = new LettaService(context);
   }
 
   public async sendMessage(userMessage: string): Promise<Message> {

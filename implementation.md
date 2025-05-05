@@ -31,7 +31,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **Step Dependencies**: Step 0.1
   - **User Instructions**: N/A
 
-- [ ] **Step 1.2: Persist active agent**
+- [x] **Step 1.2: Persist active agent**
 
   - **Task**: Save the chosen agent id into `ExtensionContext.globalState` (`context.globalState.update('letta.activeAgent', id)`); load on start.
   - **Description**: Keeps user preference across VS Code restarts.
