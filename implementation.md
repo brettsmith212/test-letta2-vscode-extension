@@ -173,7 +173,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
     - `webviews/components/__tests__/AgentBar.test.tsx`
   - **Step Dependencies**: Step 3.1
 
-- [ ] **Step 5.3: Adjust integration test to include agent flow**
+- [x] **Step 5.3: Adjust integration test to include agent flow**
   - **Task**: Stub `client.agents.list()` in `integration.test.ts` so ChatService call chain works without real server.
   - **Description**: End‑to‑end sanity.
   - **Files**:

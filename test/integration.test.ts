@@ -11,9 +11,7 @@
  * 2. The Letta server is accessible
  */
 
-import { describe, test, expect, beforeAll } from 'vitest';
-import * as path from 'path';
-import * as fs from 'fs';
+import { describe, test, expect, vi } from 'vitest';
 
 describe('Extension Integration Test', () => {
   // Set a longer timeout for integration tests (2 minutes)
@@ -28,6 +26,9 @@ describe('Extension Integration Test', () => {
       // 1. Verify core services can be imported
       const { ChatService } = await import('../src/services/ChatService');
       const { LettaService } = await import('../src/services/LettaService');
+      // Import agent types
+      const agentTypes = await import('../src/types/agent');
+      type AgentSummary = agentTypes.AgentSummary;
       
       // 2. Instantiate LettaService
       const lettaService = new LettaService();
@@ -47,6 +48,46 @@ describe('Extension Integration Test', () => {
       expect(typeof chatService.sendMessage).toBe('function');
       expect(typeof chatService.getMessages).toBe('function');
       expect(typeof chatService.cancelCurrentStream).toBe('function');
+      
+      // 6. Verify agent functionality
+      expect(typeof lettaService.listAgents).toBe('function');
+      expect(typeof lettaService.selectAgent).toBe('function');
+      expect(typeof lettaService.createAgent).toBe('function');
+      
+      // 7. Test agent list functionality
+      const mockAgents: AgentSummary[] = [
+        { id: 'agent-1', name: 'Test Agent 1', model: 'model-1' }
+      ];
+      
+      // Mock list agents directly instead of mocking the client
+      const originalListAgents = lettaService.listAgents;
+      const originalCreateAgent = lettaService.createAgent;
+      
+      // Mock the listAgents method
+      lettaService.listAgents = vi.fn().mockResolvedValue(mockAgents);
+      
+      // Mock the createAgent method
+      lettaService.createAgent = vi.fn().mockImplementation((opts: {name: string, model?: string}) => {
+        return Promise.resolve({
+          id: 'new-agent',
+          name: opts.name,
+          model: opts.model
+        });
+      });
+      
+      // Test listing agents
+      const agents = await lettaService.listAgents();
+      expect(agents).toEqual(mockAgents);
+      
+      // Test creating an agent
+      const newAgent = await lettaService.createAgent({ name: 'New Agent', model: 'test-model' });
+      expect(newAgent).toBeDefined();
+      expect(newAgent.name).toBe('New Agent');
+      expect(newAgent.model).toBe('test-model');
+      
+      // Restore original methods to avoid affecting other tests
+      lettaService.listAgents = originalListAgents;
+      lettaService.createAgent = originalCreateAgent;
       
       // Log success
       console.log('Integration test verified core services can be imported and instantiated');

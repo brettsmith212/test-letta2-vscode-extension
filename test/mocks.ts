@@ -14,6 +14,10 @@ export const mockVSCode = {
 
 // Mock the Letta Client
 export const mockLettaClient = {
+  agents: {
+    list: vi.fn().mockResolvedValue([{ id: 'agent-1', name: 'Test Agent 1', model: 'model-1' }]),
+    create: vi.fn().mockResolvedValue({ id: 'new-agent-id', name: 'New Agent', model: 'test-model' })
+  },
   createAgent: vi.fn().mockResolvedValue({ agentId: 'mock-agent-id' }),
   sendMessage: vi.fn().mockResolvedValue({ response: 'Hello from Letta!' }),
   sendMessageStream: vi.fn().mockResolvedValue({
