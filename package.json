@@ -27,6 +27,11 @@
           "type": "string",
           "default": "http://localhost:8283",
           "description": "Base URL of the Letta server"
+        },
+        "lettaChat.defaultAgentId": {
+          "type": "string",
+          "default": "",
+          "description": "ID of the default agent to use. If empty, the last selected agent will be used."
         }
       }
     }

@@ -5,6 +5,8 @@ A VS Code extension that provides an AI Coding Agent powered by Letta AI, enabli
 ## Features
 
 - Interactive chat interface with Letta AI
+- Multiple agent support with easy switching between agents
+- Create custom agents with different models
 - Code generation, analysis, and refactoring assistance
 - Context-aware responses based on your workspace
 - Modern, minimalist UI using Shadcn components
@@ -40,6 +42,11 @@ npm run compile && npm run build:webviews
    - Open VS Code settings (Ctrl+,)
    - Search for "Letta Chat"
    - Set the "Server URL" to your Letta server address (default is http://localhost:8283)
+
+2. Optional: Configure a default agent ID:
+   - Find the ID of your preferred agent from the dropdown in the chat interface
+   - Add it to the "Default Agent ID" setting in VS Code settings
+   - This agent will be automatically selected when you start the extension
 
 ## Development Setup
 
@@ -90,12 +97,23 @@ This will start Storybook on http://localhost:6006
 The extension follows a layered architecture:
 
 1. **UI Layer**: WebView-based chat interface built with React
+   - `Chat.tsx`: Main chat interface component
+   - `AgentBar.tsx`: Agent selection and creation component
 2. **Service Layer**: 
    - `ChatService`: Manages conversation state and history
-   - `LettaService`: Handles communication with the Letta AI server
+   - `LettaService`: Handles communication with the Letta AI server and agent management
 3. **Extension Layer**: VS Code extension entry point and integration
 
 Communication between the WebView and extension happens through message passing using the VS Code API.
+
+### Agent Management
+
+The extension supports multiple agents:
+
+- Agents are persisted across VS Code sessions using extension context's global state
+- When the extension starts, it fetches available agents from the Letta server
+- Users can select existing agents or create new ones through the AgentBar UI
+- Agent selection state is synchronized between the extension host and webview
 
 ## Contributing
 
