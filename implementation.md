@@ -123,6 +123,7 @@ We need a single creation flow and a UX that lets the user pick an existing agen
   - **User Instructions**: N/A
 
 - [x] **Step 4.2: Pass agent id to LettaService**
+
   - **Task**: Modify `LettaService.sendMessage` / `createMessageStream` to throw if no agent selected; `ChatPanel` must call `selectAgent` before first message.
   - **Description**: Guarantees backend consistency.
   - **Files**:
@@ -130,6 +131,29 @@ We need a single creation flow and a UX that lets the user pick an existing agen
     - `src/panels/ChatPanel.ts`
   - **Step Dependencies**: Step 1.3, Step 2.2
   - **User Instructions**: N/A
+
+  - [x] Step 4.3: Fetch agents list on extension startup
+
+    - **Task**:
+
+      1. Modify ChatPanel initialization to fetch agents immediately when created
+      2. Ensure agents are loaded automatically when extension activates
+      3. Pass the agent list to the webview as soon as it's ready
+
+    - **Description**: Ensures users see existing agents immediately without having to take any action, improving UX.
+
+    - **Files**:
+
+      - `src/panels/ChatPanel.ts`: Add startup fetch logic
+      - `src/services/LettaService.ts`: Ensure agent list is cached efficiently
+
+    - **Step Dependencies**: Step 1.1, Step 2.2
+
+    - **Implementation Details**:
+      1. Add a `_fetchAgentsOnStartup()` method to ChatPanel that runs after panel creation
+      2. Call `this._chatService.lettaService.listAgents()` and send results to webview
+      3. Handle empty agent list case (show create prompt if no agents exist)
+      4. Add this call to the constructor or initialization flow
 
 ## 5 – Tests
 

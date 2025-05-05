@@ -49,15 +49,31 @@ export class LettaService {
   /**
    * List available agents from the Letta server
    */
+  /**
+   * Force reload all agents from the server
+   */
+  public async reloadAgents(): Promise<AgentSummary[]> {
+    if (!this._client) {
+      throw new Error("Letta client not initialised");
+    }
+    
+    // Clear the cache and force reload
+    this._agents = null;
+    await this._loadAgents();
+    return this._agents || [];
+  }
+
+  /**
+   * List available agents from the Letta server
+   */
   public async listAgents(): Promise<AgentSummary[]> {
     if (!this._client) {
       throw new Error("Letta client not initialised");
     }
 
-    // Cache the agent list to avoid repeated API calls
-    if (!this._agents) {
-      await this._loadAgents();
-    }
+    // Always reload agents to ensure we have the latest list
+    // This is especially important during startup
+    await this._loadAgents();
 
     return this._agents || [];
   }
@@ -313,16 +329,29 @@ export class LettaService {
     try {
       if (!this._client) throw new Error("Letta client not initialised");
       
+      console.log('[LettaService] Loading agents from server...');
       const response: any = await this._client.agents.list();
-      const agents = response?.agents || response?.data?.agents || [];
       
-      this._agents = agents.map((agent: any) => ({
+      // Handle multiple possible response formats
+      let agentsData = [];
+      if (Array.isArray(response)) {
+        agentsData = response;
+      } else if (response?.agents && Array.isArray(response.agents)) {
+        agentsData = response.agents;
+      } else if (response?.data?.agents && Array.isArray(response.data.agents)) {
+        agentsData = response.data.agents;
+      } else {
+        console.warn('[LettaService] Unexpected response format from server:', response);
+        agentsData = [];
+      }
+      
+      this._agents = agentsData.map((agent: any) => ({
         id: agent.id,
         name: agent.name,
         model: agent.model
       }));
       
-      console.log(`[LettaService] Loaded ${this._agents?.length || 0} agents`);
+      console.log(`[LettaService] Loaded ${this._agents?.length || 0} agents`); // Don't log full details
     } catch (err) {
       console.error("LettaService._loadAgents – SDK error:", err);
       this._agents = [];

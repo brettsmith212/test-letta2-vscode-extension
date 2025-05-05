@@ -55,9 +55,13 @@ const ChatInner: React.FC = () => {
         vscode.setState({ messages, errorMessages, agents, activeAgentId });
     }, [messages, errorMessages, agents, activeAgentId, vscode]);
     
-    // Request agent list when component mounts
+    // Signal webview readiness when component mounts
     useEffect(() => {
-        vscode.listAgents();
+        // Signal to the extension host that the webview is ready
+        // This will trigger agent fetching on the backend
+        vscode.postMessage({ command: 'webviewReady' });
+        
+        // Don't call listAgents() here - that would cause duplicate fetches
     }, [vscode]);
 
     useEffect(() => {
@@ -124,11 +128,22 @@ const ChatInner: React.FC = () => {
                     setErrorMessages([]);
                     vscode.setState({ messages: [], errorMessages: [], agents, activeAgentId });
                     break;
+                case 'info':
+                    toast({
+                        title: "Info",
+                        description: message.text,
+                        duration: 5000,
+                    });
+                    break;
                 
                 // Agent-related message handlers
                 case 'agentList':
+                    console.log(`[Chat.tsx] Received agentList message with ${message.agents?.length || 0} agents`);
                     if (message.agents && Array.isArray(message.agents)) {
                         setAgents(message.agents);
+                        console.log('[Chat.tsx] Updated agents state');
+                    } else {
+                        console.error('[Chat.tsx] Invalid agents data received');
                     }
                     break;
                 

@@ -40,7 +40,7 @@ export class ChatPanel {
 
         this._panel = vscode.window.createWebviewPanel(
             ChatPanel.viewType,
-            'Claude Chat',
+            'Letta Chat',
             vscode.ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -52,7 +52,19 @@ export class ChatPanel {
         );
 
         this._panel.webview.html = getWebviewContent(this._panel.webview, this._extensionUri);
+        
+        // Set up event listeners before fetching agents to ensure the UI can receive the data
+        this._setupEventListeners();
+        
+        // We'll now wait for the webviewReady signal instead of using a timeout
+        // This prevents duplicate fetches
 
+    }
+
+    /**
+     * Set up event listeners for messages from the webview
+     */
+    private _setupEventListeners() {
         // Handle messages from webview
         this._panel.webview.onDidReceiveMessage(
             async (message: WebviewMessage) => {
@@ -70,6 +82,11 @@ export class ChatPanel {
                         break;
                     case 'listAgents':
                         await this._handleListAgents();
+                        break;
+                    case 'webviewReady':
+                        console.log('[ChatPanel] Received webviewReady signal');
+                        // The webview is ready, we can safely fetch agents
+                        await this._fetchAgentsOnStartup();
                         break;
                     case 'selectAgent':
                         if (message.agentId) {
@@ -334,6 +351,63 @@ export class ChatPanel {
             if (disposable) {
                 disposable.dispose();
             }
+        }
+    }
+
+    /**
+     * Fetch available agents on startup and send to webview
+     */
+    // Track if we've already fetched agents to prevent duplicate calls
+    private _agentsFetched = false;
+
+    private async _fetchAgentsOnStartup() {
+        // Guard against multiple fetches
+        if (this._agentsFetched) {
+            console.log('[ChatPanel] Agents already fetched, skipping');
+            return;
+        }
+        
+        this._agentsFetched = true;
+        try {
+            console.log('[ChatPanel] Starting to fetch agents on startup...');
+            
+            // Force reload all agents from LettaService
+            const agents = await this._chatService.lettaService.reloadAgents();
+            
+            console.log(`[ChatPanel] Fetched ${agents.length} agents on startup`);
+            
+            // Send agents to webview
+            this._panel.webview.postMessage({
+                command: 'agentList',
+                agents
+            } as any);
+            
+            console.log('[ChatPanel] Sent agentList message to webview');
+            
+            // If there are no agents, guide the user to create one
+            if (agents.length === 0) {
+                this._panel.webview.postMessage({
+                    command: 'info',
+                    text: 'Welcome! Please create a new agent to get started.'
+                });
+            } 
+            // If there's exactly one agent, auto-select it for convenience
+            else if (agents.length === 1) {
+                const agent = agents[0];
+                await this._chatService.lettaService.selectAgent(agent.id);
+                
+                this._panel.webview.postMessage({
+                    command: 'agentSelected',
+                    agentId: agent.id
+                });
+                
+                console.log(`[ChatPanel] Auto-selected the only available agent: ${agent.name} (${agent.id})`);
+            }
+        } catch (error) {
+            console.error('Error fetching agents on startup:', error);
+            
+            // Don't show error to user on startup - just log it
+            // We'll let the normal UI flow handle it
         }
     }
 }
